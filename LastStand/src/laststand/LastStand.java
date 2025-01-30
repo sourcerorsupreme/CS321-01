@@ -7,8 +7,8 @@ package laststand;
 /**
  *
  * @author Team 3
+ * Team Members?
  * 
- * Team Members (Test) 
  */
 public class LastStand {
 
