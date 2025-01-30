@@ -6,7 +6,7 @@ package laststand;
 
 /**
  *
- * @author 
+ * @author Team 3
  */
 public class LastStand {
 
