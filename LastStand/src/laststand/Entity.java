@@ -4,20 +4,54 @@
  */
 package laststand;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author sourc
  */
 public class Entity {
     private String entityName;
-    private int entityHealth;
+    private Health entityHealth;
     private int entityAttackPower;
     private int entityDefense;
+    private List<Item> inventory;
     
-    public Entity(String name, int health, int attackPower,int defense){
+    public Entity(String name, Health health, int attackPower,int defense){
     this.entityName = name;
     this.entityHealth = health;
     this.entityAttackPower = attackPower;
     this.entityDefense = defense;
+    this.inventory = new ArrayList<Item>();
     }
+    
+    // add Item
+    public void addItem(Item item) {
+        inventory.add(item);
+    }
+    // remove Item
+    public void removeItem(Item item) {
+        if (inventory.contains(item)) {
+            inventory.remove(item);
+            System.out.println("item removed");
+        } else {
+            System.out.println("item not removed");
+        }
+    }
+    
+    //change entity health setter called "attack"
+    public void attack(Entity target) {
+        int damage = this.entityAttackPower;
+        target.entityHealth.takeDamage(damage);
+        System.out.println(this.entityName + " attacks" + target.entityName);
+        if (!target.entityHealth.isAlive()) {
+            System.out.println(target.entityName + "defeated");
+        }
+    }
+    
+    public void showInventory() {
+        System.out.println(inventory);
+    }
+    // show Inventory
 }
