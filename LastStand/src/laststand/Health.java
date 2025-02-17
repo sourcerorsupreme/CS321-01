@@ -9,7 +9,9 @@ package laststand;
  * @author sourc
  */
 public class Health {
+    //current health
     private int healthPoints;
+    //maximum health
     private int maxHealth;
     
     public Health(int healthPoints) {
