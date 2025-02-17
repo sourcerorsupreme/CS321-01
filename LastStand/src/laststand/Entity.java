@@ -50,6 +50,10 @@ public class Entity {
         }
     }
     
+    public void heal(int amount) {
+        entityHealth.heal(amount);
+    }
+    
     public void showInventory() {
         System.out.println(inventory);
     }

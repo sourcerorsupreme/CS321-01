@@ -10,15 +10,24 @@ package laststand;
  */
 public class Health {
     private int healthPoints;
+    private int maxHealth;
     
     public Health(int healthPoints) {
         this.healthPoints = healthPoints;
+        this.maxHealth = healthPoints;
     }
     
     public void takeDamage(int damage) {
         healthPoints -= damage;
         if (healthPoints < 0) {
             healthPoints = 0;
+        }
+    }
+    
+    public void heal(int amount) {
+        healthPoints += amount;
+        if (healthPoints > maxHealth) {
+            healthPoints = maxHealth;
         }
     }
     
