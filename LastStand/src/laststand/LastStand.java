@@ -96,7 +96,7 @@ public class LastStand implements ActionListener {
     public void actionPerformed(ActionEvent evt) {
         //to listen and react to a button being pressed.
         //I (Rose) will link functions to buttons once we merge into main.
-        //For not all buttons just increase a counter that responds to clicking.
+        //All buttons just increase a counter that responds to clicking.
         
         if (evt.getSource()==buttonA)
         {
