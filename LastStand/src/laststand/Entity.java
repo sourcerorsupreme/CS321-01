@@ -18,19 +18,26 @@ public class Entity {
     private int entityDefense;
     private List<Item> inventory;
     
-    public Entity(String name, Health health, int attackPower,int defense){
+    public Entity(String name, int health, int attackPower,int defense){
     this.entityName = name;
-    this.entityHealth = health;
+    this.entityHealth = new Health(health);
     this.entityAttackPower = attackPower;
     this.entityDefense = defense;
     this.inventory = new ArrayList<Item>();
     }
     
-    // add Item
+    public boolean isAlive() {
+        return entityHealth.isAlive();
+    }
+    
+    public int getHealth() {
+        return entityHealth.getHealthPoints();
+    }
+    
     public void addItem(Item item) {
         inventory.add(item);
     }
-    // remove Item
+    
     public void removeItem(Item item) {
         if (inventory.contains(item)) {
             inventory.remove(item);

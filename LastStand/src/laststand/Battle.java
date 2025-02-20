@@ -24,15 +24,15 @@ public class Battle {
     int turn = 0;
     
     public void battleEncounter(){
-         Entity player = new Entity("Player", 100, 10, 5);
+        Entity player = new Entity("Player", 100, 10, 5);
         
          /**
           * Note: Create a boolean function to check entity health ?
           */
-        while (player.health >0){
+        while (player.isAlive()){
             Entity enemy = new Entity("Enemy", 50, 10, 5);
             
-            while (enemy.health > 0){
+            while (enemy.isAlive()){
                 System.out.println("Enter the action you would like to take.");
                 System.out.print("Attack\n Heal\n Inventory\n ");
 
@@ -57,7 +57,7 @@ public class Battle {
                  * Enemy Logic
                  * Created basic attack logic until we discuss how we want the "ai" to function
                  */
-                if (enemy.health > 0){
+                if (enemy.isAlive()){
                      enemy.attack(player);
                 }else{
                     

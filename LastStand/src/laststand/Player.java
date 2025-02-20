@@ -10,7 +10,7 @@ package laststand;
  */
 public class Player extends Entity {
     
-    public Player(String name, Health health, int attackPower, int defense) {
+    public Player(String name, int health, int attackPower, int defense) {
         super(name, health, attackPower, defense);
     }
 }
