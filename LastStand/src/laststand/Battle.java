@@ -10,9 +10,18 @@ import java.util.Scanner;
  *
  * @author tommy
  */
+
+
 public class Battle {
     
-    Scanner scanner = new Scanner(System.in);
+    private Scanner scanner = new Scanner(System.in);
+    
+    /**
+     * Default constructor for battle.
+     */
+    public Battle(){}
+    
+    
     /**
      * Battle Logic
      * Create logic the battle follows
@@ -21,24 +30,30 @@ public class Battle {
      * will transform logic onto a window and add GUI elements and create more depth to choices and enemy
      */
     
-    int turn = 0;
-    
-    public void battleEncounter(){
-         Entity player = new Entity("Player", 100, 10, 5);
+    /**
+     * 
+     * @param player
+     * @param enemy
+     * @return 
+     */
+    public boolean startBattle(Entity player, Entity enemy){
+        /**
+         * I think it would be a good idea to add a new method in entity to display its name to 
+         */
+        System.out.println("Your next challenger is " + "enemy.getName()" + ". Prepare yourself.");
         
-         /**
-          * Note: Create a boolean function to check entity health ?
-          */
-        while (player.health >0){
-            Entity enemy = new Entity("Enemy", 50, 10, 5);
+        int turn = 0;
+        
+        while (player.isAlive() && enemy.isAlive()){
+            updateTurn(turn);
             
-            while (enemy.health > 0){
-                System.out.println("Enter the action you would like to take.");
-                System.out.print("Attack\n Heal\n Inventory\n ");
-
-                turn = turn + 1;
-                String choice = scanner.nextLine();
-                switch (choice.toLowerCase()) {
+            /**
+             * Assuming Player will always go first.
+             * Players turn
+             */
+            System.out.println("Choose your action: Attack | Heal | Inventory");
+            String choice = scanner.nextLine().toLowerCase();
+            switch (choice.toLowerCase()) {
                     case "attack":
                         player.attack(enemy);
                         break;
@@ -49,22 +64,38 @@ public class Battle {
                         player.showInventory();
                         break;
                     default:
-                        System.out.println("Invalid choice. Please enter Attack, Heal, or Inventory.");
-                        break;
-                    
-                }
-                /**
-                 * Enemy Logic
-                 * Created basic attack logic until we discuss how we want the "ai" to function
-                 */
-                if (enemy.health > 0){
-                     enemy.attack(player);
-                }else{
-                    
-                }
+                        System.out.println("Invalid choice Try again.");
+        }
+            
+            //Check if enemy has been defeated
+            if(!enemy.isAlive()){
+                System.out.println("enemy.getName()" + " has beeen defeated!");
+                return true;
+            }
+            // Enemy Turn (Basic AI)
+            System.out.println("enemy.getName()" + " attacks!");
+            enemy.attack(player);
+
+            // Check if player is defeated
+            if (!player.isAlive()) {
+                System.out.println("You have been defeated...");
+                return false;
             }
         }
+        return false;
+    }//End of start Battle
+    
+    /**
+     * 
+     * @param turn
+     * @return turn incremented by 1
+     */
+    public static int updateTurn(int turn){
+        turn++;
+        System.out.println("\nTurn " + turn);
+        return turn;
         
-        System.out.println("You have died");
-    }
-}
+        
+    }//End of update Turn
+
+}//End of Battle Class
