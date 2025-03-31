@@ -20,6 +20,10 @@ import java.awt.*;
  * 15/mar/25 - updated GUI to reflect design made previously,
  *             removed actionlistener from attack, heal, use item, 
  *             and surrender buttons until I figure out how to use it.
+ * 31/mar/25 - updating for sake of report: been trying to move my code 
+ *             to the battle class, but been held back both by schedule
+ *             and outside situations. I'm definitely working on it
+ *             though!
  * 
  */
 public class LastStand{
