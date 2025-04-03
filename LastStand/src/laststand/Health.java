@@ -43,4 +43,7 @@ public class Health {
     public int getHealthPoints() {
         return healthPoints;
     }
+    public int getMaxHealhPoints(){
+        return maxHealth;
+    }
 }

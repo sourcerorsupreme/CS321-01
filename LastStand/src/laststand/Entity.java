@@ -34,8 +34,10 @@ public class Entity {
     public boolean isAlive() {
         return entityHealth.isAlive();
     }
-    
-    public int getHealth() {
+    public int getMaxHealth(){
+        return entityHealth.getMaxHealhPoints();
+    }
+    public int getCurrentHealth() {
         return entityHealth.getHealthPoints();
     }
     
