@@ -8,7 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Class Entity represents the class that is to be defeated by Class Player
+ * entityName - name of Entity
+ * Health Health - Class representing 'hitpoints'
+ * entityAttackPower - Amount of 'damage' done by entity
+ * entityDefense - Amount of 'damage' that can be mitigated by entity
+ * inventory - List of items selectable by entity
  * @author sourc
  */
 public class Entity {

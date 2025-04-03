@@ -5,7 +5,7 @@
 package laststand;
 
 /**
- *
+ * Class Player represents the class controlled by the User
  * @author Team 3
  */
 public class Player extends Entity {

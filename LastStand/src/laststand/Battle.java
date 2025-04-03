@@ -7,7 +7,9 @@ package laststand;
 import java.util.Scanner;
 
 /**
- *
+ * Class Battle handles the logic of the game; It will do so by managing the turns of players and entities
+ * Player turns end once an action has been selected
+ * Entity turns are randomly selected by this class
  * @author tommy
  */
 public class Battle {

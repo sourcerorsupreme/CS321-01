@@ -5,7 +5,10 @@
 package laststand;
 
 /**
- *
+ * Class Health represents the 'hitpoints' of an entity/player
+ * healthPoints - current 'hitpoint' value
+ * maxHealth - maximum 'hitpoint' value possible
+ * Will contain class methods handling updating this value in entity/player class
  * @author sourc
  */
 public class Health {
