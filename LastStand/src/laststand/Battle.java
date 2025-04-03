@@ -34,8 +34,8 @@ public class Battle {
         int maxPlayerHP = 100;
         int maxEnemyHP = 50;
         Entity player = new Entity("Player", maxPlayerHP, 10, 5);
-        Entity enemy = new Entity("enemy", maxEnemyHP,10,5);
-        BattleView a = new BattleView(maxPlayerHP, maxEnemyHP, player, enemy);
+        Entity enemyA = new Entity("enemy", maxEnemyHP,10,5);
+        BattleView a = new BattleView(maxPlayerHP, maxEnemyHP, player, enemyA);
         
         
          /**
@@ -53,11 +53,11 @@ public class Battle {
                 switch (choice.toLowerCase()) {
                     case "attack":
                         player.attack(enemy);
-                        a.setEnemyHP(maxEnemyHP,enemy.getHealth());
+                        a.setEnemyHP(maxEnemyHP,enemy.getCurrentHealth());
                         break;
                     case "heal":
                         player.heal(0);
-                        a.setPlayerHP(maxPlayerHP, player.getHealth());
+                        a.setPlayerHP(maxPlayerHP, player.getCurrentHealth());
                         break;
                     case "inventory":
                         player.showInventory();
@@ -73,7 +73,7 @@ public class Battle {
                  */
                 if (enemy.isAlive()){
                      enemy.attack(player);
-                     a.setPlayerHP(maxPlayerHP, player.getHealth());
+                     a.setPlayerHP(maxPlayerHP, player.getCurrentHealth());
                 }else{
                     
                 }
