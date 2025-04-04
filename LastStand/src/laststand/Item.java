@@ -5,39 +5,49 @@
 package laststand;
 
 /**
- *
- * @author Peter Cao
+ * Class Item is one of the actions selectable by the Player Class
+ * itemEffect describes what the item selected by the Player does
+ *          heal will increase the health parameter of the player
+ *          damage will decrease the health parameter of entities
+ * 
  */
 
 public class Item {
+    **
+     * Enumerated type itemEffect describes what the item's effect is
+     * Heal will increase the health of the entity/player using it
+     * Damage will decrease the health of the targeted user
+     */
     public enum itemEffect{
        Heal, Damage
     }   
+    /**
+     * Enumerated type itemEffect describes what the item's effect is
+     * Heal will increase the health of the entity/player using it
+     * Damage will decrease the health of the targeted user
+     */
     private String itemName;
-    private float value; 
+    private int value; 
     private itemEffect type;
-    // private PlayerClassName ItemOwner;       // ownero fhe item
     
     // Constructor, add Player owner
-    public Item(String name, float value,itemEffect type){
+    public Item(String name, int value,itemEffect type){
         this.itemName = name;
         this.value = value;
         this.type = type;
     }
     
     // Take player class as input
-    public void useItem(){
+    public void useItem(Entity target){
         switch(this.type){
-            case Heal:
-                // increase health of player
-                break;
-            case Damage:
-                // decrease health of entity
-                break;
-            default:
-                break;
+            case Heal -> // increase health of player
+                target.heal(this.value);
+            case Damage -> // decrease health of entity
+                target.heal(-this.value);
+            default -> {
+            }
         }
-     // switch(Item Type)
+    // switch(Item Type)
      // Heal -> ItemOwner.setHealth()
      // Damage -> Enemy.setHealth()
  
