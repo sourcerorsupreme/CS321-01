@@ -36,14 +36,11 @@ import java.awt.*;
 */
 public class LastStand{
     public static void main(String[] args) {
-        
         //Create player and enemy with test Values
         Entity player = new Entity("Player", 100, 15, 5);
         Entity enemy = new Entity("Enemy", 60, 10, 3);
         
          // Just launch the GUI for now; no battle loop
         Battle battle = new Battle(player, enemy);
-        
-        
     }
 }

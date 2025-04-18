@@ -4,6 +4,8 @@
  */
 package laststand;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +25,11 @@ public class Entity {
     private int entityDefense;
     private List<Item> inventory;
     
-    public Entity(String name, int health, int attackPower,int defense){
+    @JsonCreator
+    public Entity( @JsonProperty("name")String name,
+            @JsonProperty("health") int health,
+            @JsonProperty("attackPower") int attackPower,
+            @JsonProperty("defense")int defense){
     this.entityName = name;
     this.entityHealth = new Health(health);
     this.entityAttackPower = attackPower;
@@ -40,7 +46,10 @@ public class Entity {
     public int getCurrentHealth() {
         return entityHealth.getHealthPoints();
     }
-    
+
+    public String getName(){
+        return this.entityName;
+    }
     public void addItem(Item item) {
         inventory.add(item);
     }
@@ -60,7 +69,7 @@ public class Entity {
         target.entityHealth.takeDamage(damage);
         System.out.println(this.entityName + " attacks" + target.entityName);
         if (!target.entityHealth.isAlive()) {
-            System.out.println(target.entityName + "defeated");
+            System.out.println(target.entityName + " defeated");
         }
     }
     

@@ -12,7 +12,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
 /**
  * Class Battle handles the logic of the game; It will do so by managing the turns of players and entities
  * Player turns end once an action has been selected
@@ -21,6 +20,7 @@ import java.awt.event.ActionListener;
  */
 public class Battle {
     
+
     private final Scanner scanner = new Scanner(System.in);
     private Entity player;
     private Entity enemy;
@@ -34,6 +34,7 @@ public class Battle {
      * create turns
      * Set up as simple text in console, for idea of the flow of the battle,
      * will transform logic onto a window and add GUI elements and create more depth to choices and enemy
+     
      * @param player
      * @param enemy
      */
@@ -116,6 +117,7 @@ public class Battle {
                 System.out.println(enemy.getName() + " is low on health but keeps fighting!");
                 enemy.attack(player);
             }
+
         }
     }
 
@@ -136,7 +138,7 @@ public class Battle {
 //            }
 //        }
 //        return false;
-    
+
 
 class BattleView{
     /**
@@ -144,20 +146,24 @@ class BattleView{
     */
     private JFrame frame = new JFrame("Last Stand");
     private JPanel panel = new JPanel();
+  
     private JLabel turn = new JLabel("");
     private JLabel playerHP = new JLabel("");
     private JLabel enemyHP = new JLabel("");
     private JLabel playerSprite = new JLabel();
     private JLabel enemySprite = enemySprite = new JLabel();
+
     private JButton attack = new JButton("ATTACK");
     private JButton heal = new JButton("HEAL");
     private JButton useItem = new JButton("USE ITEM");
     private JButton surrender = new JButton("SURRENDER");
+
     private Entity player;
     private Entity enemy;
     private static final int SPRITE_WIDTH = 250;
     private static final int SPRITE_HEIGHT = 250;
  
+
     // Renders Initial Frame
     // TODO: Supply Item List    
     public BattleView(int maxPlayerHP, int maxEnemyHP, Entity player, Entity enemy){
@@ -186,6 +192,7 @@ class BattleView{
 
         
         setTurn(true);
+
         setPlayerHP(maxPlayerHP, maxPlayerHP);
         setEnemyHP(maxEnemyHP,maxEnemyHP);
         //
@@ -202,7 +209,7 @@ class BattleView{
         panel.setBackground(Color.BLACK);
         //
 
-//        removeActionListButtons();
+        //removeActionListButtons();
         frame.add(panel);
         frame.setSize(1280,760);
         frame.setVisible(true);
@@ -228,6 +235,7 @@ class BattleView{
     // Set Enemy HP
     public void setEnemyHP(int maxHP, int currentHP){
         String text = "ENEMY HP: " + currentHP + "/" + maxHP;
+
         enemyHP.setText(text);
     }
     // Set Player HP
@@ -252,6 +260,7 @@ class BattleView{
             System.out.println("ATTACK was clicked!");
             player.attack(enemy);
             setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
+
             }
         });
         
@@ -261,6 +270,7 @@ class BattleView{
             System.out.println("HEAL was clicked!");
             player.heal(10);
             setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
+
             }
         });
         
@@ -290,6 +300,7 @@ class BattleView{
         ok1.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
         ok1.setBounds(765,660,60,40);
         panel.add(ok1);
+
     }
     public void setActionListButtonStyle(){
         attack.setFont(new java.awt.Font("Arial",Font.BOLD,25));
@@ -332,6 +343,7 @@ class BattleView{
         turn.setBorder(BorderFactory.createLineBorder(new Color(255,189,71), 5, true));
         turn.setBounds(10,10,175,55);
         panel.add(turn);
+
     }
     public void setHpStyle(){
         // Player HP
@@ -395,6 +407,6 @@ class BattleView{
         decoration3.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
         decoration3.setBounds(852,430,406,285);
         panel.add(decoration3);
-        }   
+        }
     }
 }
