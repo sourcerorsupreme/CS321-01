@@ -68,7 +68,7 @@ public class Entity {
         target.entityHealth.takeDamage(damage);
         System.out.println(this.entityName + " attacks" + target.entityName);
         if (!target.entityHealth.isAlive()) {
-            System.out.println(target.entityName + "defeated");
+            System.out.println(target.entityName + " defeated");
         }
     }
     

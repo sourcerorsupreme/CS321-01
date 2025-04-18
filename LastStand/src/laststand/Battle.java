@@ -65,8 +65,10 @@ public class Battle {
                 
                 delay();
                 double healthPercent = (double) enemy.getCurrentHealth()/enemy.getMaxHealth();
-            
-                if (healthPercent >= 0.80) {
+                if (!enemy.isAlive()){
+                    continue;
+                }
+                else if (healthPercent >= 0.80) {
                     System.out.println(enemy.getName() + " attacks!");
                     enemy.attack(player);
                     battleView.setPlayerHP(maxPlayerHP, player.getCurrentHealth());
@@ -82,7 +84,7 @@ public class Battle {
                         if (attemptHeal(enemy)) {
                             System.out.println(enemy.getName() + " uses a potion to heal!");
                             enemy.heal(10); // adjust amount
-                            battleView.setEnemyHP(maxEnemyHP, enemy.getCurrentHealth());
+                            battleView.setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
                         } else {
                             System.out.println(enemy.getName() + " tries to heal but has no potions. Attacking!");
                             enemy.attack(player);
@@ -94,17 +96,19 @@ public class Battle {
                     if (attemptHeal(enemy)) {
                         System.out.println(enemy.getName() + " desperately uses a potion!");
                         enemy.heal(10);
-                        battleView.setEnemyHP(maxEnemyHP, enemy.getCurrentHealth());
+                        battleView.setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
                     } else {
                         System.out.println(enemy.getName() + " is low on health but keeps fighting!");
                         enemy.attack(player);
-                        battleView.setEnemyHP(maxEnemyHP, enemy.getCurrentHealth());
+                        battleView.setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
                     }
                 }
                 
             }
             
             enemy = data.getRandomEntity();
+            battleView.setEnemy(enemy);
+            battleView.setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
         }
     }
 
@@ -193,9 +197,13 @@ class BattleView{
         panel.add(useItem);
         panel.add(surrender);
     }
+    public void setEnemy(Entity entity){
+        this.enemy = entity;
+    }
     // Set Enemy HP
     public void setEnemyHP(int maxHP, int currentHP){
-        String text = "ENEMY HP: " + currentHP + "/" + maxHP;
+//        String text = "ENEMY HP: " + currentHP + "/" + maxHP;
+        String text = enemy.getName() + " " + enemy.getCurrentHealth() + "/" + enemy.getMaxHealth();
         enemyHP.setText(text);
     }
     // Set Player HP
