@@ -31,11 +31,16 @@ public class Battle {
 //    public void battleEncounter(){
         public Battle(){
         int maxPlayerHP = 100;
-        int maxEnemyHP = 100;
-        Entity enemy = new Entity("Enemy", 100, 10,0);
+//        int maxEnemyHP = 100;
+        GameData data = new GameData("data.json");
+        Entity enemy = data.getRandomEntity();
+        
+        //Entity enemy = new Entity("Enemy", 100, 10,0);
         Player player = new Player("You",100,10,0);
         
-        BattleView battleView = new BattleView(maxPlayerHP, maxEnemyHP, player, enemy);
+        
+        
+        BattleView battleView = new BattleView(maxPlayerHP, enemy.getMaxHealth(), player, enemy);
         boolean turn = battleView.getTurn();
         
          /**
@@ -98,6 +103,8 @@ public class Battle {
                 }
                 
             }
+            
+            enemy = data.getRandomEntity();
         }
     }
 

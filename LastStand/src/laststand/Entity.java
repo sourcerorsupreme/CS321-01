@@ -4,6 +4,8 @@
  */
 package laststand;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +25,11 @@ public class Entity {
     private int entityDefense;
     private List<Item> inventory;
     
-    public Entity(String name, int health, int attackPower,int defense){
+    @JsonCreator
+    public Entity( @JsonProperty("name")String name,
+            @JsonProperty("health") int health,
+            @JsonProperty("attackPower") int attackPower,
+            @JsonProperty("defense")int defense){
     this.entityName = name;
     this.entityHealth = new Health(health);
     this.entityAttackPower = attackPower;

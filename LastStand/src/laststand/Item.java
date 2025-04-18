@@ -4,6 +4,8 @@
  */
 package laststand;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Class Item is one of the actions selectable by the Player Class
  * itemEffect describes what the item selected by the Player does
@@ -31,7 +33,10 @@ public class Item {
     private itemEffect type;
     
     // Constructor, add Player owner
-    public Item(String name, int value,itemEffect type){
+    @JsonCreator
+    public Item(@JsonProperty("name")String name,
+            @JsonProperty("value") int value,
+            @JsonProperty("itemEffect")itemEffect type){
         this.itemName = name;
         this.value = value;
         this.type = type;
