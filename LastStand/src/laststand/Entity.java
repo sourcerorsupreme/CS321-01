@@ -40,7 +40,9 @@ public class Entity {
     public int getCurrentHealth() {
         return entityHealth.getHealthPoints();
     }
-    
+    public String getName(){
+        return this.entityName;
+    }
     public void addItem(Item item) {
         inventory.add(item);
     }
