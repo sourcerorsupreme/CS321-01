@@ -5,6 +5,7 @@
 package laststand;
 
 import java.util.Scanner;
+import java.util.Random;    
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,11 +31,7 @@ public class Battle {
     boolean turn = true;
 //    public void battleEncounter(){
         public Battle(){
-        
-        int maxPlayerHP = 100;
-        int maxEnemyHP = 50;
-        Entity player = new Entity("Player", maxPlayerHP, 10, 5);
-        Entity enemyA = new Entity("enemy", maxEnemyHP,10,5);
+            
         BattleView a = new BattleView(maxPlayerHP, maxEnemyHP, player, enemyA);
         
         
@@ -81,6 +78,55 @@ public class Battle {
         }
         
         System.out.println("You have died");
+        
+        public enemyTurn(Entity enemy, Entity player)
+        {
+            if (!enemy.isAlive()){
+                System.out.println(enemy.getName() + "has been defeated!");
+        }
+        
+            double healthPercent = (double) enemy.getCurrentHealth()/enemy.maxHealth();
+            
+            if (healthPercent >= 0.80) {
+            System.out.println(enemy.getName() + " attacks!");
+            enemy.attack(player);
+        } else if (healthPercent >= 0.30) {
+            Random rand = new Random();
+            int actionRoll = rand.nextInt(100); // 0–99
+
+            if (actionRoll < 70) {
+                System.out.println(enemy.getName() + " attacks!");
+                enemy.attack(player);
+            } else {
+                if (attemptHeal(enemy)) {
+                    System.out.println(enemy.getName() + " uses a potion to heal!");
+                    enemy.heal(10); // adjust amount
+                } else {
+                    System.out.println(enemy.getName() + " tries to heal but has no potions. Attacking!");
+                    enemy.attack(player);
+                }
+            }
+        } else {
+            // Health < 50%, maybe go full survival mode
+            if (attemptHeal(enemy)) {
+                System.out.println(enemy.getName() + " desperately uses a potion!");
+                enemy.heal(10);
+            } else {
+                System.out.println(enemy.getName() + " is low on health but keeps fighting!");
+                enemy.attack(player);
+            }
+        }
+    }
+
+    private boolean attemptHeal(Entity enemy) {
+        Item[] inventory = enemy.getInventory();
+        for (int i = 0; i < inventory.length; i++) {
+            if (inventory[i] != null && inventory[i].getTag().equalsIgnoreCase("potion")) {
+                inventory[i] = null; // consume potion
+                return true;
+            }
+        }
+        return false;
     }
 }
 
