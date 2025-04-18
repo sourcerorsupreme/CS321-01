@@ -82,7 +82,4 @@ public class Entity {
     }
     // show Inventory
     
-    public String getName() {
-        return this.entityName;
-    }
 }
