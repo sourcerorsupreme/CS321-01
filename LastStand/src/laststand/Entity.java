@@ -46,6 +46,7 @@ public class Entity {
     public int getCurrentHealth() {
         return entityHealth.getHealthPoints();
     }
+
     public String getName(){
         return this.entityName;
     }
@@ -80,4 +81,8 @@ public class Entity {
         System.out.println(inventory);
     }
     // show Inventory
+    
+    public String getName() {
+        return this.entityName;
+    }
 }

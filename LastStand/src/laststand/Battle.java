@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 /**
  * Class Battle handles the logic of the game; It will do so by managing the turns of players and entities
  * Player turns end once an action has been selected
@@ -19,118 +20,125 @@ import java.awt.event.ActionListener;
  */
 public class Battle {
     
-    Scanner scanner = new Scanner(System.in);
+
+    private final Scanner scanner = new Scanner(System.in);
+    private Entity player;
+    private Entity enemy;
+    private BattleView battleView;
+    
+    boolean turn = true;
+    
     /**
      * Battle Logic
      * Create logic the battle follows
      * create turns
      * Set up as simple text in console, for idea of the flow of the battle,
      * will transform logic onto a window and add GUI elements and create more depth to choices and enemy
+     
+     * @param player
+     * @param enemy
      */
-   
+    
 //    public void battleEncounter(){
-        public Battle(){
-        int maxPlayerHP = 100;
-//        int maxEnemyHP = 100;
-        GameData data = new GameData("data.json");
-        Entity enemy = data.getRandomEntity();
-        
-        //Entity enemy = new Entity("Enemy", 100, 10,0);
-        Player player = new Player("You",100,10,0);
+        public Battle(Entity player, Entity enemy){
+            this.player = player;
+            this.enemy = enemy;
+            this.battleView = new BattleView(player.getMaxHealth(), enemy.getMaxHealth(), player, enemy);
         
         
+        //startBattle();
+        }
         
-        BattleView battleView = new BattleView(maxPlayerHP, enemy.getMaxHealth(), player, enemy);
-        boolean turn = battleView.getTurn();
-        
-         /**
-          * Note: Create a boolean function to check entity health ?
-          */
-        while (player.isAlive()){
-            //enemy = new Entity("Enemy", maxEnemyHP, 10, 5);
-            System.out.println("enemy turn");
-            while (enemy.isAlive()){
-                // Wait till enemies turn to perform action
-                while (turn){
-                    turn = battleView.getTurn();
-                    delay();
-                }
-                /**
-                 * Enemy Logic
-                 * Created basic attack logic until we discuss how we want the "ai" to function
-                 */
-                battleView.setTurn(true);
-                turn = battleView.getTurn();
-                battleView.setTurnLabel(true);
-                
-                delay();
-                double healthPercent = (double) enemy.getCurrentHealth()/enemy.getMaxHealth();
-                if (!enemy.isAlive()){
-                    continue;
-                }
-                else if (healthPercent >= 0.80) {
-                    System.out.println(enemy.getName() + " attacks!");
-                    enemy.attack(player);
-                    battleView.setPlayerHP(maxPlayerHP, player.getCurrentHealth());
-                } else if (healthPercent >= 0.30) {
-                    Random rand = new Random();
-                    int actionRoll = rand.nextInt(100); // 0–99
+        private void startBattle() {
+        while (player.isAlive()) {
+            // Loop while enemy is alive
+            while (enemy.isAlive()) {
+                System.out.println("\nEnter the action you would like to take.");
+                System.out.print("Attack\nHeal\nInventory\n> ");
+                String choice = scanner.nextLine().toLowerCase();
 
-                    if (actionRoll < 70) {
-                        System.out.println(enemy.getName() + " attacks!");
-                        enemy.attack(player);
-                        battleView.setPlayerHP(maxPlayerHP, player.getCurrentHealth());
-                    } else {
-                        if (attemptHeal(enemy)) {
-                            System.out.println(enemy.getName() + " uses a potion to heal!");
-                            enemy.heal(10); // adjust amount
-                            battleView.setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
-                        } else {
-                            System.out.println(enemy.getName() + " tries to heal but has no potions. Attacking!");
-                            enemy.attack(player);
-                            battleView.setPlayerHP(maxPlayerHP, player.getCurrentHealth());
-                        }
-                    }
-                } else {
-                    // Health < 50%, maybe go full survival mode
-                    if (attemptHeal(enemy)) {
-                        System.out.println(enemy.getName() + " desperately uses a potion!");
-                        enemy.heal(10);
+                switch (choice) {
+                    case "attack":
+                        player.attack(enemy);
                         battleView.setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
-                    } else {
-                        System.out.println(enemy.getName() + " is low on health but keeps fighting!");
-                        enemy.attack(player);
-                        battleView.setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
-                    }
+                        break;
+                    case "heal":
+                        player.heal(10); // You can change this logic to use potions later
+                        battleView.setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
+                        break;
+                    case "inventory":
+                        player.showInventory();
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please enter Attack, Heal, or Inventory.");
+                        continue;
                 }
-                
+
+                if (enemy.isAlive()) {
+                    enemyTurn(enemy, player);
+                    battleView.setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
+                }
             }
-            
-            enemy = data.getRandomEntity();
-            battleView.setEnemy(enemy);
-            battleView.setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
+
+            System.out.println("\n" + enemy.getName() + " has been defeated!");
+            return;
+        }
+
+        System.out.println("You have died.");
+    }
+
+    private void enemyTurn(Entity enemy, Entity player) {
+        double healthPercent = (double) enemy.getCurrentHealth() / enemy.getMaxHealth();
+
+        if (healthPercent >= 0.80) {
+            System.out.println(enemy.getName() + " attacks!");
+            enemy.attack(player);
+        } else if (healthPercent >= 0.30) {
+            Random rand = new Random();
+            int actionRoll = rand.nextInt(100); // 0–99
+
+            if (actionRoll < 70) {
+                System.out.println(enemy.getName() + " attacks!");
+                enemy.attack(player);
+            } else {
+                if (attemptHeal(enemy)) {
+                    System.out.println(enemy.getName() + " uses a potion to heal!");
+                    enemy.heal(10);
+                } else {
+                    System.out.println(enemy.getName() + " tries to heal but has no potions. Attacking!");
+                    enemy.attack(player);
+                }
+            }
+        } else {
+            if (attemptHeal(enemy)) {
+                System.out.println(enemy.getName() + " desperately uses a potion!");
+                enemy.heal(10);
+            } else {
+                System.out.println(enemy.getName() + " is low on health but keeps fighting!");
+                enemy.attack(player);
+            }
+
         }
     }
 
     private boolean attemptHeal(Entity enemy) {
-        Item[] inventory = enemy.getInventory();
-        for (int i = 0; i < inventory.length; i++) {
-            if (inventory[i] != null && inventory[i].getTag().equalsIgnoreCase("potion")) {
-                inventory[i] = null; // consume potion
-                return true;
-            }
-        }
-        return false;
+        if (enemy.getCurrentHealth()> 5) {
+            System.out.println(enemy.getName() + "healed");
+            return true;
+        }else
+            return false;
+            
     }
-    private void delay(){
-        try {
-            Thread.sleep(50);
-        } 
-        catch (InterruptedException e) {
-                e.printStackTrace();
-        }
-    }
-}
+//        List<Item> inventory = enemy.getInventory();
+//        for (int i = 0; i < inventory.size(); i++) {
+//            Item item = inventory.get(i);
+//            if (item != null && item.getTag().equalsIgnoreCase("potion")) {
+//                inventory.remove(i); // consume potion
+//                return true;
+//            }
+//        }
+//        return false;
+
 
 class BattleView{
     /**
@@ -138,26 +146,53 @@ class BattleView{
     */
     private JFrame frame = new JFrame("Last Stand");
     private JPanel panel = new JPanel();
-    private JLabel turnLabel = new JLabel("");
+  
+    private JLabel turn = new JLabel("");
     private JLabel playerHP = new JLabel("");
     private JLabel enemyHP = new JLabel("");
+    private JLabel playerSprite = new JLabel();
+    private JLabel enemySprite = enemySprite = new JLabel();
+
     private JButton attack = new JButton("ATTACK");
     private JButton heal = new JButton("HEAL");
     private JButton useItem = new JButton("USE ITEM");
     private JButton surrender = new JButton("SURRENDER");
-    private JButton actionDescriberOK = new JButton("OK");
-    private JButton textBoxOK = new JButton("OK");
+
     private Entity player;
     private Entity enemy;
-    
-    private boolean turn = true;
+    private static final int SPRITE_WIDTH = 250;
+    private static final int SPRITE_HEIGHT = 250;
+ 
+
     // Renders Initial Frame
     // TODO: Supply Item List    
     public BattleView(int maxPlayerHP, int maxEnemyHP, Entity player, Entity enemy){
         this.player = player;
         this.enemy = enemy;
         panel.setLayout(null);
-        setTurnLabel(true);
+
+        
+        // Load and scale player sprite
+        ImageIcon playerIcon = new ImageIcon(getClass().getResource("/laststand/assets/player1.png"));
+        Image scaledPlayerImage = playerIcon.getImage().getScaledInstance(SPRITE_WIDTH, SPRITE_HEIGHT, Image.SCALE_SMOOTH);
+        playerSprite.setIcon(new ImageIcon(scaledPlayerImage));
+        playerSprite.setBounds(200, 100, SPRITE_WIDTH, SPRITE_HEIGHT);
+
+        // Load and scale enemy sprite
+        ImageIcon enemyIcon = new ImageIcon(getClass().getResource("/laststand/assets/enemy.png"));
+        Image scaledEnemyImage = enemyIcon.getImage().getScaledInstance(SPRITE_WIDTH, SPRITE_HEIGHT, Image.SCALE_SMOOTH);
+        enemySprite.setIcon(new ImageIcon(scaledEnemyImage));
+        enemySprite.setBounds(900, 100, SPRITE_WIDTH, SPRITE_HEIGHT);
+
+        // Add them to the panel
+        panel.add(playerSprite);
+        panel.add(enemySprite);
+        panel.revalidate();
+        panel.repaint();
+
+        
+        setTurn(true);
+
         setPlayerHP(maxPlayerHP, maxPlayerHP);
         setEnemyHP(maxEnemyHP,maxEnemyHP);
         //
@@ -174,7 +209,7 @@ class BattleView{
         panel.setBackground(Color.BLACK);
         //
 
-//        removeActionListButtons();
+        //removeActionListButtons();
         frame.add(panel);
         frame.setSize(1280,760);
         frame.setVisible(true);
@@ -197,13 +232,10 @@ class BattleView{
         panel.add(useItem);
         panel.add(surrender);
     }
-    public void setEnemy(Entity entity){
-        this.enemy = entity;
-    }
     // Set Enemy HP
     public void setEnemyHP(int maxHP, int currentHP){
-//        String text = "ENEMY HP: " + currentHP + "/" + maxHP;
-        String text = enemy.getName() + " " + enemy.getCurrentHealth() + "/" + enemy.getMaxHealth();
+        String text = "ENEMY HP: " + currentHP + "/" + maxHP;
+
         enemyHP.setText(text);
     }
     // Set Player HP
@@ -212,36 +244,23 @@ class BattleView{
         playerHP.setText(text);
     }
     // Turn indicator in top left corner
-    public void setTurnLabel(boolean turn){
+    public void setTurn(boolean turn){
         if (!turn){
-            this.turnLabel.setText(" It's Your Enemies Turn!");
+            this.turn.setText(" It's Your Enemies Turn!");
         }
         else{
-            this.turnLabel.setText(" It's Your Turn!");
+            this.turn.setText(" It's Your Turn!");
         }
-    }
-    public void setTurn(boolean turn){
-        this.turn = turn;
     }
     // Action Listener
     public void actionListListeners(){
-        textBoxOK.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e){
-                if (turn){
-                    System.out.println("TextBox OK was clicked.");
-                    turn = false;
-                    System.out.println(turn);
-                }
-            }
-        });
         attack.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-                System.out.println("ATTACK was clicked!");
-                player.attack(enemy);
-                setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
-                setTurnLabel(false);
+            System.out.println("ATTACK was clicked!");
+            player.attack(enemy);
+            setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
+
             }
         });
         
@@ -249,39 +268,39 @@ class BattleView{
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("HEAL was clicked!");
-                player.heal(10);
-                setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
-                setTurnLabel(false);
+            player.heal(10);
+            setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
+
             }
         });
         
         useItem.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-                System.out.println("USE ITEM was clicked!");
-                removeActionListButtons();      
+            System.out.println("USE ITEM was clicked!");
+            removeActionListButtons();
             }
         });
     }
-    public boolean getTurn(){
-        return turn;
-    }
     // Functions that will only be called once
     public void textBoxOK(){
-        textBoxOK.setFont(new java.awt.Font("Arial",Font.BOLD,25));
-        textBoxOK.setBackground(Color.darkGray);
-        textBoxOK.setForeground(Color.white);
-        textBoxOK.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
-        textBoxOK.setBounds(1181,660,60,40);
-        panel.add(textBoxOK);
+        JButton ok2 = new JButton("OK");
+        ok2.setFont(new java.awt.Font("Arial",Font.BOLD,25));
+        ok2.setBackground(Color.darkGray);
+        ok2.setForeground(Color.white);
+        ok2.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
+        ok2.setBounds(1181,660,60,40);
+        panel.add(ok2);
     }
     public void actionDescriberOK(){
-        actionDescriberOK.setFont(new java.awt.Font("Arial",Font.BOLD,25));
-        actionDescriberOK.setBackground(Color.darkGray);
-        actionDescriberOK.setForeground(Color.white);
-        actionDescriberOK.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
-        actionDescriberOK.setBounds(765,660,60,40);
-        panel.add(actionDescriberOK);
+        JButton ok1 = new JButton("OK");
+        ok1.setFont(new java.awt.Font("Arial",Font.BOLD,25));
+        ok1.setBackground(Color.darkGray);
+        ok1.setForeground(Color.white);
+        ok1.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
+        ok1.setBounds(765,660,60,40);
+        panel.add(ok1);
+
     }
     public void setActionListButtonStyle(){
         attack.setFont(new java.awt.Font("Arial",Font.BOLD,25));
@@ -318,12 +337,13 @@ class BattleView{
         panel.add(helpButton);
     }
     public void setTurnStyle(){
-        turnLabel.setFont(new java.awt.Font("Arial", Font.BOLD, 22));
-        turnLabel.setOpaque(true);
-        turnLabel.setBackground(new Color(255,242,218));
-        turnLabel.setBorder(BorderFactory.createLineBorder(new Color(255,189,71), 5, true));
-        turnLabel.setBounds(10,10,175,55);
-        panel.add(turnLabel);
+        turn.setFont(new java.awt.Font("Arial", Font.BOLD, 22));
+        turn.setOpaque(true);
+        turn.setBackground(new Color(255,242,218));
+        turn.setBorder(BorderFactory.createLineBorder(new Color(255,189,71), 5, true));
+        turn.setBounds(10,10,175,55);
+        panel.add(turn);
+
     }
     public void setHpStyle(){
         // Player HP
@@ -387,5 +407,6 @@ class BattleView{
         decoration3.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
         decoration3.setBounds(852,430,406,285);
         panel.add(decoration3);
+        }
     }
 }
