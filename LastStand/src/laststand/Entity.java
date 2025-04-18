@@ -8,7 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Class Entity represents the class that is to be defeated by Class Player
+ * entityName - name of Entity
+ * Health Health - Class representing 'hitpoints'
+ * entityAttackPower - Amount of 'damage' done by entity
+ * entityDefense - Amount of 'damage' that can be mitigated by entity
+ * inventory - List of items selectable by entity
  * @author sourc
  */
 public class Entity {
@@ -18,19 +23,28 @@ public class Entity {
     private int entityDefense;
     private List<Item> inventory;
     
-    public Entity(String name, Health health, int attackPower,int defense){
+    public Entity(String name, int health, int attackPower,int defense){
     this.entityName = name;
-    this.entityHealth = health;
+    this.entityHealth = new Health(health);
     this.entityAttackPower = attackPower;
     this.entityDefense = defense;
     this.inventory = new ArrayList<Item>();
     }
     
-    // add Item
+    public boolean isAlive() {
+        return entityHealth.isAlive();
+    }
+    public int getMaxHealth(){
+        return entityHealth.getMaxHealhPoints();
+    }
+    public int getCurrentHealth() {
+        return entityHealth.getHealthPoints();
+    }
+    
     public void addItem(Item item) {
         inventory.add(item);
     }
-    // remove Item
+    
     public void removeItem(Item item) {
         if (inventory.contains(item)) {
             inventory.remove(item);
@@ -58,4 +72,8 @@ public class Entity {
         System.out.println(inventory);
     }
     // show Inventory
+    
+    public String getName() {
+        return this.entityName;
+    }
 }
