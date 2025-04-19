@@ -174,14 +174,14 @@ class BattleView{
         
         // Load and scale player sprite
 
-        ImageIcon playerIcon = new ImageIcon(getClass().getResource("/laststand/assets/player1.png"));
+        ImageIcon playerIcon = new ImageIcon(getClass().getResource("/assets/player1.png"));
         Image scaledPlayerImage = playerIcon.getImage().getScaledInstance(SPRITE_WIDTH, SPRITE_HEIGHT, Image.SCALE_SMOOTH);
         playerSprite.setIcon(new ImageIcon(scaledPlayerImage));
         playerSprite.setBounds(200, 100, SPRITE_WIDTH, SPRITE_HEIGHT);
 
         // Load and scale enemy sprite
 
-        ImageIcon enemyIcon = new ImageIcon(getClass().getResource("/laststand/assets/enemy.png"));
+        ImageIcon enemyIcon = new ImageIcon(getClass().getResource("/assets/enemy.png"));
         Image scaledEnemyImage = enemyIcon.getImage().getScaledInstance(SPRITE_WIDTH, SPRITE_HEIGHT, Image.SCALE_SMOOTH);
         enemySprite.setIcon(new ImageIcon(scaledEnemyImage));
         enemySprite.setBounds(900, 100, SPRITE_WIDTH, SPRITE_HEIGHT);
