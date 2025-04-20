@@ -36,6 +36,9 @@ import java.awt.*;
  *             item) by the same person. I added more action listeners to 
  *             surrender and help. I'll keep using the notes at main for to 
  *             keep things simple.
+ * 19/apr/25 - Updated battle class to most recent version and cleaned things
+ *             up a bit. Github had some odd indenting issues, so make sure to
+ *             check that the code is indented correctly before running.
 */
 public class LastStand{
     public static void main(String[] args) {
