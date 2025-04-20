@@ -80,6 +80,15 @@ public class Entity {
     public void showInventory() {
         System.out.println(inventory);
     }
-    // show Inventory
+    public List<Item> getInventory(){
+        return inventory;
+    }
     
+    public void addToInventory(Item item){
+        inventory.add(item);
+    }
+    // show Inventory
+    public int getAttackPower(){
+        return entityAttackPower;
+    }
 }
