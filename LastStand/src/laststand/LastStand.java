@@ -38,8 +38,9 @@ public class LastStand{
     public static void main(String[] args) {
         //Create player and enemy with test Values
         Entity player = new Entity("Player", 100, 15, 5);
-        Entity enemy = new Entity("Enemy", 60, 10, 3);
-        
+        //Entity enemy = new Entity("Enemy", 60, 10, 3);
+        GameData data = new GameData("data.json");
+        Entity enemy = data.getRandomEntity();
          // Just launch the GUI for now; no battle loop
         Battle battle = new Battle(player, enemy);
     }

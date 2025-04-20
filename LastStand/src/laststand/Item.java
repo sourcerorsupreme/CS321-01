@@ -52,10 +52,19 @@ public class Item {
             default -> {
             }
         }
-     // switch(Item Type)
-     // Heal -> ItemOwner.setHealth()
-     // Damage -> Enemy.setHealth()
- 
     }
+    public String getItemName(){
+        return itemName;
+    }
+    public itemEffect getItemType(){
+        return type;
+    }
+    public String getItemDescription() {
+        return switch(this.type) {
+            case Heal -> "Heal yourself for " + this.value + " hp.";
+            case Damage -> "Deal " + this.value + " damage to enemy.";
+            default -> "Unknown item type.";
+    };
+}
     
 }

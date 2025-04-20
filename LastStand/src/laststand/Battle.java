@@ -11,7 +11,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.HashSet;
 
+import java.util.List;
+import java.util.Set;
 /**
  * Class Battle handles the logic of the game; It will do so by managing the turns of players and entities
  * Player turns end once an action has been selected
@@ -20,13 +25,11 @@ import java.awt.event.ActionListener;
  */
 public class Battle {
     
-
-    private final Scanner scanner = new Scanner(System.in);
     private Entity player;
     private Entity enemy;
     private BattleView battleView;
-    
-    boolean turn = true;
+    private GameData data = new GameData("data.json");
+    private boolean turn;
     
     /**
      * Battle Logic
@@ -44,83 +47,97 @@ public class Battle {
             this.player = player;
             this.enemy = enemy;
             this.battleView = new BattleView(player.getMaxHealth(), enemy.getMaxHealth(), player, enemy);
-        
-        
-        //startBattle();
+            this.turn = battleView.getIsPlayerReady();
+            player.addItem(data.getRandomItem());
+            startBattle();
+            
         }
         
         private void startBattle() {
-        while (player.isAlive()) {
-            // Loop while enemy is alive
-            while (enemy.isAlive()) {
-                System.out.println("\nEnter the action you would like to take.");
-                System.out.print("Attack\nHeal\nInventory\n> ");
-                String choice = scanner.nextLine().toLowerCase();
+            while (player.isAlive()) {
+                // Loop while enemy is alive
+                while (enemy.isAlive()) {
 
-                switch (choice) {
-                    case "attack":
-                        player.attack(enemy);
-                        battleView.setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
-                        break;
-                    case "heal":
-                        player.heal(10); // You can change this logic to use potions later
+                    // Wait till user clicks TextBoxOK
+                    while (!turn){
+                        turn = battleView.getIsPlayerReady();
+                        delay();
+                    }
+
+                    if (enemy.isAlive()) {
+                        enemyTurn(enemy, player);
                         battleView.setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
-                        break;
-                    case "inventory":
-                        player.showInventory();
-                        break;
-                    default:
-                        System.out.println("Invalid choice. Please enter Attack, Heal, or Inventory.");
-                        continue;
+                    }
+                    turn = false;
+                    battleView.setTurn(true);
+                    //battleView.setIsPlayerTurn(turn);
+                    battleView.setIsPlayerReady(turn);
                 }
-
-                if (enemy.isAlive()) {
-                    enemyTurn(enemy, player);
-                    battleView.setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
-                }
+                
+                String defeatText = "\n" + enemy.getName() + " has been defeated!";
+                battleView.setEnemyActionLabel(defeatText);
+                //System.out.println("\n" + enemy.getName() + " has been defeated!");
+                newEnemy();
+                //return;
             }
 
-            System.out.println("\n" + enemy.getName() + " has been defeated!");
-            return;
-        }
-
-        System.out.println("You have died.");
+            System.out.println("You have died.");
     }
-
+    private void newEnemy(){
+        battleView.setActionDescriberLabel("A new enemy has appeared.");
+        enemy = data.getRandomEntity();
+        battleView.setEnemy(enemy);
+        battleView.setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
+        player.addToInventory(data.getRandomItem());
+        player.addToInventory(data.getRandomItem());
+    }
     private void enemyTurn(Entity enemy, Entity player) {
         double healthPercent = (double) enemy.getCurrentHealth() / enemy.getMaxHealth();
 
         if (healthPercent >= 0.80) {
-            System.out.println(enemy.getName() + " attacks!");
+            battleView.setEnemyActionLabel(enemy.getName() + " attacks!");
+//            System.out.println(enemy.getName() + " attacks!");
             enemy.attack(player);
         } else if (healthPercent >= 0.30) {
             Random rand = new Random();
             int actionRoll = rand.nextInt(100); // 0–99
 
             if (actionRoll < 70) {
-                System.out.println(enemy.getName() + " attacks!");
+                battleView.setEnemyActionLabel(enemy.getName() + " attacks!");
+//                System.out.println(enemy.getName() + " attacks!");
                 enemy.attack(player);
             } else {
                 if (attemptHeal(enemy)) {
-                    System.out.println(enemy.getName() + " uses a potion to heal!");
+                    battleView.setEnemyActionLabel(enemy.getName() + " uses a potion to heal!");
+                    //System.out.println(enemy.getName() + " uses a potion to heal!");
                     enemy.heal(10);
                 } else {
-                    System.out.println(enemy.getName() + " tries to heal but has no potions. Attacking!");
+                    battleView.setEnemyActionLabel(enemy.getName() + " tries to heal but has no potions. Attacking!");
+                    // System.out.println(enemy.getName() + " tries to heal but has no potions. Attacking!");
                     enemy.attack(player);
                 }
             }
         } else {
             if (attemptHeal(enemy)) {
-                System.out.println(enemy.getName() + " desperately uses a potion!");
+                battleView.setEnemyActionLabel(enemy.getName() + " desperately uses a potion!");
+                //System.out.println(enemy.getName() + " desperately uses a potion!");
                 enemy.heal(10);
             } else {
-                System.out.println(enemy.getName() + " is low on health but keeps fighting!");
+                battleView.setEnemyActionLabel(enemy.getName() + " is low on health but keeps fighting!");
+                //System.out.println(enemy.getName() + " is low on health but keeps fighting!");
                 enemy.attack(player);
             }
 
         }
     }
-
+    private void delay(){
+         try {
+             Thread.sleep(50);
+         } 
+         catch (InterruptedException e) {
+                 e.printStackTrace();
+         }
+     }
     private boolean attemptHeal(Entity enemy) {
         if (enemy.getCurrentHealth()> 5) {
             System.out.println(enemy.getName() + "healed");
@@ -153,13 +170,22 @@ class BattleView{
     private JLabel playerSprite = new JLabel();
     private JLabel enemySprite = enemySprite = new JLabel();
 
+    private JLabel enemyActionLabel = new JLabel("");
+    private JLabel actionDescriberLabel = new JLabel("");
+    
     private JButton attack = new JButton("ATTACK");
     private JButton heal = new JButton("HEAL");
     private JButton useItem = new JButton("USE ITEM");
     private JButton surrender = new JButton("SURRENDER");
 
+    private JButton textBoxOK = new JButton("OK");
+    private JButton actionDescriberOK = new JButton("BACK");
     private Entity player;
     private Entity enemy;
+    
+    private JScrollPane itemPanel = new JScrollPane();
+    private boolean isPlayerTurn = true;
+    private boolean isPlayerReady = false;
     private static final int SPRITE_WIDTH = 250;
     private static final int SPRITE_HEIGHT = 250;
  
@@ -202,6 +228,8 @@ class BattleView{
         setHpStyle();
         setHelpStyle();
         displayActionListButtons();
+        enemyActionLabelStyle();
+        actionDescriberLabelStyle();
         boxLabels();
         actionDescriberOK();
         textBoxOK();
@@ -209,8 +237,10 @@ class BattleView{
         setActionListButtonStyle();
         actionListListeners();
         panel.setBackground(Color.BLACK);
+        panel.setOpaque(true);
         //
-
+        setItemDisplayStyle();
+        
         //removeActionListButtons();
         frame.add(panel);
         frame.setSize(1280,760);
@@ -228,11 +258,20 @@ class BattleView{
         panel.repaint();  
     }
     // Display Action List
+    public void setEnemy(Entity entity){
+        enemy = entity;
+    }
     public void displayActionListButtons(){
         panel.add(attack);
         panel.add(heal);
         panel.add(useItem);
         panel.add(surrender);
+        panel.setComponentZOrder(attack,0);
+        panel.setComponentZOrder(heal,0);
+        panel.setComponentZOrder(useItem,0);
+        panel.setComponentZOrder(surrender,0);
+        panel.revalidate();
+        panel.repaint();
     }
     // Set Enemy HP
     public void setEnemyHP(int maxHP, int currentHP){
@@ -254,54 +293,213 @@ class BattleView{
             this.turn.setText(" It's Your Turn!");
         }
     }
+    public void setEnemyActionLabel(String text){
+        enemyActionLabel.setText(text);
+    }
+    public void setIsPlayerTurn(boolean turn){
+        isPlayerTurn = turn;
+    }
+    public void setIsPlayerReady(boolean turn){
+        isPlayerReady = turn;
+    }
+    public boolean getIsPlayerReady(){
+        return isPlayerReady;
+    }
+    private void setActionDescriberLabel(String text){
+        actionDescriberLabel.setText(text);
+    }
+    private void addItemsToLabel(){
+        itemPanel.setVisible(true);
+        List<Item> inventory = player.getInventory();
+        JPanel container = new JPanel();
+        container.setBackground(Color.darkGray);
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        container.setOpaque(true);
+        
+        for (Item item: inventory){
+            JButton button = new JButton(item.getItemName());
+            button.setFont(new java.awt.Font("Arial",Font.BOLD,25));
+            button.setBackground(Color.darkGray);
+            button.setForeground(Color.white);
+            button.setOpaque(true);
+            button.addMouseListener(new MouseAdapter(){
+                @Override
+                public void mouseEntered(MouseEvent e){
+                    setActionDescriberLabel(item.getItemDescription());
+                }
+                @Override
+                public void mouseExited(MouseEvent e){
+                    setActionDescriberLabel("");
+                }
+             });
+            button.addActionListener(new ActionListener(){
+                    @Override
+                    public void actionPerformed(ActionEvent e){
+                        if (isPlayerTurn){
+                             if (item.getItemType() == Item.itemEffect.Heal){
+                                item.useItem(player);
+                                setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
+                             }
+                             else if (item.getItemType() == Item.itemEffect.Damage)
+                                item.useItem(enemy);
+                                setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
+                        }
+                        player.removeItem(item);
+                        setTurn(false);
+                        isPlayerTurn=false;
+                        container.removeAll();
+                        itemPanel.setVisible(false);
+                        displayActionListButtons();
+                        panel.revalidate();
+                        panel.repaint();
+
+                    }
+                 });
+            container.add(Box.createRigidArea(new Dimension(0, 10))); // 10px vertical spacing
+            container.add(button);
+        }
+        container.add(Box.createVerticalGlue());
+        itemPanel.setViewportView(container);
+        itemPanel.revalidate();
+        itemPanel.repaint();
+    }
     // Action Listener
     public void actionListListeners(){
+        actionDescriberOK.addActionListener(new ActionListener(){
+           @Override
+           public void actionPerformed(ActionEvent e){
+               if(itemPanel.isVisible()){
+                   itemPanel.setVisible(false);
+                   displayActionListButtons();
+                   panel.revalidate();
+                   panel.repaint();
+                }
+           }
+        });
+        textBoxOK.addActionListener(new ActionListener(){
+           @Override
+           public void actionPerformed(ActionEvent e){
+               if (!isPlayerTurn){
+                    System.out.println("TextBoxOK Clicked");
+                    isPlayerReady=true;
+                    isPlayerTurn=true;
+               }
+               
+           }
+        });
+        // Hover Actio
+        attack.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseEntered(MouseEvent e){
+                setActionDescriberLabel("Deal " + player.getAttackPower() + " damage to the enemy.");
+            }
+            @Override
+            public void mouseExited(MouseEvent e){
+                setActionDescriberLabel("");
+            }
+        });
+        heal.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseEntered(MouseEvent e){
+                setActionDescriberLabel("Heal yourself for 10 HP.");
+            }
+            @Override
+            public void mouseExited(MouseEvent e){
+                setActionDescriberLabel("");
+            }
+        });
+        useItem.addMouseListener(new MouseAdapter(){
+           @Override
+           public void mouseEntered(MouseEvent e){
+               setActionDescriberLabel("Select an item to consume.");
+           }
+           @Override
+           public void mouseExited(MouseEvent e){
+               setActionDescriberLabel("");
+           }
+        });
+        // Click Action
         attack.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("ATTACK was clicked!");
-            player.attack(enemy);
-            setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
-
+            if (isPlayerTurn){
+                System.out.println("ATTACK was clicked!");
+                player.attack(enemy);
+                setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
+                setTurn(false);
+                isPlayerTurn=false;
+                }
+            
             }
         });
         
         heal.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("HEAL was clicked!");
-            player.heal(10);
-            setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
-
+            if (isPlayerTurn){
+                System.out.println("HEAL was clicked!");
+                player.heal(10);
+                setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
+                setTurn(false);
+                isPlayerTurn = false;
+            }
+            
             }
         });
         
         useItem.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("USE ITEM was clicked!");
-            removeActionListButtons();
+                if (isPlayerTurn){
+                    System.out.println("USE ITEM was clicked!");
+                    removeActionListButtons();
+                    addItemsToLabel();
+                    frame.revalidate();
+                    frame.repaint();
+                }
             }
         });
     }
     // Functions that will only be called once
+    public void setItemDisplayStyle(){
+        itemPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        itemPanel.setBounds(30,455,360,235);
+        itemPanel.getViewport().setBackground(Color.darkGray);
+        itemPanel.setForeground(Color.white);
+        itemPanel.setOpaque(true);
+        itemPanel.setVisible(false);
+        itemPanel.getViewport().setOpaque(true);
+        frame.add(itemPanel);
+    }
+    public void actionDescriberLabelStyle(){
+        actionDescriberLabel.setFont(new java.awt.Font("Arial",Font.BOLD,15));
+        actionDescriberLabel.setBackground(Color.darkGray);
+        actionDescriberLabel.setForeground(Color.white);
+        actionDescriberLabel.setBounds(450,455,360,55);
+        panel.add(actionDescriberLabel);
+    }
+    public void enemyActionLabelStyle(){
+        enemyActionLabel.setFont(new java.awt.Font("Arial",Font.BOLD,15));
+        enemyActionLabel.setBackground(Color.darkGray);
+        enemyActionLabel.setForeground(Color.white);
+        enemyActionLabel.setBounds(875,455,360,55);
+        panel.add(enemyActionLabel);
+    }
     public void textBoxOK(){
-        JButton ok2 = new JButton("OK");
-        ok2.setFont(new java.awt.Font("Arial",Font.BOLD,25));
-        ok2.setBackground(Color.darkGray);
-        ok2.setForeground(Color.white);
-        ok2.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
-        ok2.setBounds(1181,660,60,40);
-        panel.add(ok2);
+        textBoxOK.setFont(new java.awt.Font("Arial",Font.BOLD,25));
+        textBoxOK.setBackground(Color.darkGray);
+        textBoxOK.setForeground(Color.white);
+        textBoxOK.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
+        textBoxOK.setBounds(1181,660,60,40);
+        panel.add(textBoxOK);
     }
     public void actionDescriberOK(){
-        JButton ok1 = new JButton("OK");
-        ok1.setFont(new java.awt.Font("Arial",Font.BOLD,25));
-        ok1.setBackground(Color.darkGray);
-        ok1.setForeground(Color.white);
-        ok1.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
-        ok1.setBounds(765,660,60,40);
-        panel.add(ok1);
+        actionDescriberOK.setFont(new java.awt.Font("Arial",Font.BOLD,25));
+        actionDescriberOK.setBackground(Color.darkGray);
+        actionDescriberOK.setForeground(Color.white);
+        actionDescriberOK.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
+        actionDescriberOK.setBounds(745,660,80,40);
+        panel.add(actionDescriberOK);
 
     }
     public void setActionListButtonStyle(){
@@ -376,7 +574,7 @@ class BattleView{
         actionDescriber.setBounds(440,415,250,30);
         panel.add(actionDescriber);
         
-        JLabel textBox = new JLabel("  Text Box");
+        JLabel textBox = new JLabel("  Enemy Action");
         textBox.setOpaque(true);
         textBox.setFont(new java.awt.Font("Arial",Font.BOLD,23));
         textBox.setBackground(Color.black);
