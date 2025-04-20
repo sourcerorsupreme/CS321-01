@@ -41,7 +41,8 @@ public class LastStand{
         //Entity enemy = new Entity("Enemy", 60, 10, 3);
         GameData data = new GameData("data.json");
         Entity enemy = data.getRandomEntity();
-         // Just launch the GUI for now; no battle loop
+         
+        //Start screen Battle
         Battle battle = new Battle(player, enemy);
     }
 }
