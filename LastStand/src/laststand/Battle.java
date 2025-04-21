@@ -78,7 +78,7 @@ public class Battle {
                     // Fallen in battle.
                     if (!player.isAlive())
                     {
-                        break;
+                        handlePlayerDeath();
                     }
                 }
                 
@@ -154,6 +154,31 @@ public class Battle {
             return false;
             
     }
+    
+    private void handlePlayerDeath() {
+        // Disable battle controls while showing the dialog
+        battleView.removeActionListButtons();
+
+        // Set message about player's defeat
+        battleView.setActionDescriberLabel(player.getName() + " has been defeated!");
+
+        // Show the death confirmation dialog
+        battleView.showDeathConfirmation();
+
+        // If we get here, player chose to continue (handled in the UI)
+        // Restore player health to continue
+        player.heal(player.getMaxHealth()); // Fully restore health
+        battleView.setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
+
+        // Reset battle state
+        battleView.setTurn(true);
+        battleView.setIsPlayerReady(false);
+        battleView.setIsPlayerTurn(true);
+
+        // Show action buttons again
+        battleView.displayActionListButtons();
+    }
+}
 //        List<Item> inventory = enemy.getInventory();
 //        for (int i = 0; i < inventory.size(); i++) {
 //            Item item = inventory.get(i);
@@ -313,7 +338,7 @@ class BattleView{
     public boolean getIsPlayerReady(){
         return isPlayerReady;
     }
-    private void setActionDescriberLabel(String text){
+    public void setActionDescriberLabel(String text){
         actionDescriberLabel.setText(text);
     }
     private void addItemsToLabel(){
@@ -809,7 +834,8 @@ class BattleView{
                 panel.remove(popup);
                 panel.repaint();
 
-                Timer timer = new Timer(5000, new ActionListener() {
+                Timer timer = new Timer(50, new ActionListener() {
+
                     @Override
                     public void actionPerformed(ActionEvent evt) {
                         System.exit(0);
@@ -820,6 +846,7 @@ class BattleView{
             }
         });
     }
+
         public void handlePlayerDeath() {
         // Disable battle controls while showing the dialog
         battleView.removeActionListButtons();
