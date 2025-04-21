@@ -834,7 +834,7 @@ class BattleView{
                 panel.remove(popup);
                 panel.repaint();
 
-                Timer timer = new Timer(5000, new ActionListener() {
+                Timer timer = new Timer(5, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent evt) {
                         System.exit(0);
