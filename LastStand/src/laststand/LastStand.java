@@ -44,5 +44,9 @@ public class LastStand{
          
         //Start screen Battle
         Battle battle = new Battle(player, enemy);
+        
+        //BattleTest newtest = new BattleTest();
+        //newtest.runAllTests();
+
     }
 }

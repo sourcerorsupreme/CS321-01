@@ -87,7 +87,7 @@ public class Entity {
     public void addToInventory(Item item){
         inventory.add(item);
     }
-    // show Inventory
+    
     public int getAttackPower(){
         return entityAttackPower;
     }
