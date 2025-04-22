@@ -846,29 +846,4 @@ class BattleView{
             }
         });
     }
-
-        public void handlePlayerDeath() {
-        // Disable battle controls while showing the dialog
-        battleView.removeActionListButtons();
-
-        // Set message about player's defeat
-        battleView.setActionDescriberLabel(player.getName() + " has been defeated!");
-
-        // Show the death confirmation dialog
-        battleView.showDeathConfirmation();
-
-        // If we get here, player chose to continue (handled in the UI)
-        // Restore player health to continue
-        player.heal(player.getMaxHealth()); // Fully restore health
-        battleView.setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
-
-        // Reset battle state
-        battleView.setTurn(true);
-        battleView.setIsPlayerReady(false);
-        battleView.setIsPlayerTurn(true);
-
-        // Show action buttons again
-        battleView.displayActionListButtons();
-    }
-}
 }
