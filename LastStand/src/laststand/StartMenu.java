@@ -64,13 +64,11 @@ public class StartMenu extends JPanel{
         GameData data = new GameData("data.json");
         Entity enemy = data.getRandomEntity();
         
-        frame.getContentPane().removeAll(); // 💥 clear StartMenu
+        frame.getContentPane().removeAll();
         frame.revalidate();
         frame.repaint();
         
         new Battle(player, enemy, frame);
-        
-        // Use Game Data to get a random enemy from the JSON
     }
     
     private void addListeners(){
