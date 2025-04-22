@@ -52,7 +52,7 @@ public class Battle {
             this.turn = battleView.getIsPlayerReady();
             player.addItem(data.getRandomItem());
             
-            // Set the content pane here!
+            
             frame.setContentPane(battleView);
             frame.revalidate();
             frame.repaint();
