@@ -30,6 +30,7 @@ public class Battle {
     private BattleView battleView;
     private GameData data = new GameData("data.json");
     private boolean turn;
+    private JFrame frame;
     
     /**
      * Battle Logic
@@ -43,13 +44,28 @@ public class Battle {
      */
     
 //    public void battleEncounter(){
-        public Battle(Entity player, Entity enemy){
+        public Battle(Entity player, Entity enemy, JFrame frame){
             this.player = player;
             this.enemy = enemy;
-            this.battleView = new BattleView(player.getMaxHealth(), enemy.getMaxHealth(), player, enemy);
+            this.frame = frame;
+            this.battleView = new BattleView(player.getMaxHealth(), enemy.getMaxHealth(), player, enemy, frame);
             this.turn = battleView.getIsPlayerReady();
             player.addItem(data.getRandomItem());
-            startBattle();
+            
+            // Set the content pane here!
+            frame.setContentPane(battleView);
+            frame.revalidate();
+            frame.repaint();
+
+            // Start the loop in the background
+            SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                @Override
+                protected Void doInBackground() {
+                    startBattle(); // runs in a background thread
+                    return null;
+                }
+            };
+            worker.execute();
             
         }
         
@@ -157,12 +173,11 @@ public class Battle {
 //        return false;
 
 
-class BattleView{
+class BattleView extends JPanel{
     /**
     * BattleView handles rendering the view as well as all changes that will be made to it
     */
-    private JFrame frame = new JFrame("Last Stand");
-    private JPanel panel = new JPanel();
+    private JFrame frame;
   
     private JLabel turn = new JLabel("");
     private JLabel playerHP = new JLabel("");
@@ -177,7 +192,8 @@ class BattleView{
     private JButton heal = new JButton("HEAL");
     private JButton useItem = new JButton("USE ITEM");
     private JButton surrender = new JButton("SURRENDER");
-
+    private JButton helpButton = new JButton("HELP!");
+    
     private JButton textBoxOK = new JButton("OK");
     private JButton actionDescriberOK = new JButton("BACK");
     private Entity player;
@@ -192,10 +208,12 @@ class BattleView{
 
     // Renders Initial Frame
     // TODO: Supply Item List    
-    public BattleView(int maxPlayerHP, int maxEnemyHP, Entity player, Entity enemy){
+    public BattleView(int maxPlayerHP, int maxEnemyHP, Entity player, Entity enemy, JFrame frame){
         this.player = player;
         this.enemy = enemy;
-        panel.setLayout(null);
+        this.frame = frame;
+        setLayout(null);
+        setBackground(Color.BLACK);
 
         
         // Load and scale player sprite
@@ -213,10 +231,10 @@ class BattleView{
         enemySprite.setBounds(900, 100, SPRITE_WIDTH, SPRITE_HEIGHT);
 
         // Add them to the panel
-        panel.add(playerSprite);
-        panel.add(enemySprite);
-        panel.revalidate();
-        panel.repaint();
+        add(playerSprite);
+        add(enemySprite);
+        revalidate();
+        repaint();
 
         
         setTurn(true);
@@ -236,13 +254,12 @@ class BattleView{
         backgroundDecorations();
         setActionListButtonStyle();
         actionListListeners();
-        panel.setBackground(Color.BLACK);
-        panel.setOpaque(true);
+        setBackground(Color.BLACK);
+        setOpaque(true);
         //
         setItemDisplayStyle();
         
         //removeActionListButtons();
-        frame.add(panel);
         frame.setSize(1280,760);
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
@@ -250,28 +267,28 @@ class BattleView{
     }
     // Remove Action List(){
     public void removeActionListButtons(){
-        panel.remove(attack);
-        panel.remove(heal);
-        panel.remove(useItem);
-        panel.remove(surrender);
-        panel.revalidate();
-        panel.repaint();  
+        remove(attack);
+        remove(heal);
+        remove(useItem);
+        remove(surrender);
+        revalidate();
+        repaint();  
     }
     // Display Action List
     public void setEnemy(Entity entity){
         enemy = entity;
     }
     public void displayActionListButtons(){
-        panel.add(attack);
-        panel.add(heal);
-        panel.add(useItem);
-        panel.add(surrender);
-        panel.setComponentZOrder(attack,0);
-        panel.setComponentZOrder(heal,0);
-        panel.setComponentZOrder(useItem,0);
-        panel.setComponentZOrder(surrender,0);
-        panel.revalidate();
-        panel.repaint();
+        add(attack);
+        add(heal);
+        add(useItem);
+        add(surrender);
+        setComponentZOrder(attack,0);
+        setComponentZOrder(heal,0);
+        setComponentZOrder(useItem,0);
+        setComponentZOrder(surrender,0);
+        revalidate();
+        repaint();
     }
     // Set Enemy HP
     public void setEnemyHP(int maxHP, int currentHP){
@@ -350,8 +367,8 @@ class BattleView{
                         container.removeAll();
                         itemPanel.setVisible(false);
                         displayActionListButtons();
-                        panel.revalidate();
-                        panel.repaint();
+                        revalidate();
+                        repaint();
 
                     }
                  });
@@ -371,8 +388,8 @@ class BattleView{
                if(itemPanel.isVisible()){
                    itemPanel.setVisible(false);
                    displayActionListButtons();
-                   panel.revalidate();
-                   panel.repaint();
+                   revalidate();
+                   repaint();
                 }
            }
         });
@@ -477,6 +494,14 @@ class BattleView{
             showSurrenderConfirmation();
         }
         });
+        
+        // Action listener If user clicks help button
+        helpButton.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                showHelp();
+            }
+        });
     }
     
     // Functions that will only be called once
@@ -495,14 +520,14 @@ class BattleView{
         actionDescriberLabel.setBackground(Color.darkGray);
         actionDescriberLabel.setForeground(Color.white);
         actionDescriberLabel.setBounds(450,455,360,55);
-        panel.add(actionDescriberLabel);
+        add(actionDescriberLabel);
     }
     public void enemyActionLabelStyle(){
         enemyActionLabel.setFont(new java.awt.Font("Arial",Font.BOLD,15));
         enemyActionLabel.setBackground(Color.darkGray);
         enemyActionLabel.setForeground(Color.white);
         enemyActionLabel.setBounds(875,455,360,55);
-        panel.add(enemyActionLabel);
+        add(enemyActionLabel);
     }
     public void textBoxOK(){
         textBoxOK.setFont(new java.awt.Font("Arial",Font.BOLD,25));
@@ -510,7 +535,7 @@ class BattleView{
         textBoxOK.setForeground(Color.white);
         textBoxOK.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
         textBoxOK.setBounds(1181,660,60,40);
-        panel.add(textBoxOK);
+        add(textBoxOK);
     }
     public void actionDescriberOK(){
         actionDescriberOK.setFont(new java.awt.Font("Arial",Font.BOLD,25));
@@ -518,7 +543,7 @@ class BattleView{
         actionDescriberOK.setForeground(Color.white);
         actionDescriberOK.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
         actionDescriberOK.setBounds(745,660,80,40);
-        panel.add(actionDescriberOK);
+        add(actionDescriberOK);
 
     }
     public void setActionListButtonStyle(){
@@ -547,13 +572,12 @@ class BattleView{
         surrender.setBounds(30,635,360,55);
     }
     public void setHelpStyle(){
-        JButton helpButton = new JButton("Help!");
         helpButton.setFont(new java.awt.Font("Arial",Font.BOLD,25));
         helpButton.setBackground(Color.darkGray);
         helpButton.setForeground(Color.white);
         helpButton.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
         helpButton.setBounds(1150,10,100,55);
-        panel.add(helpButton);
+        add(helpButton);
     }
     public void setTurnStyle(){
         turn.setFont(new java.awt.Font("Arial", Font.BOLD, 22));
@@ -561,7 +585,7 @@ class BattleView{
         turn.setBackground(new Color(255,242,218));
         turn.setBorder(BorderFactory.createLineBorder(new Color(255,189,71), 5, true));
         turn.setBounds(10,10,175,55);
-        panel.add(turn);
+        add(turn);
 
     }
     public void setHpStyle(){
@@ -569,12 +593,12 @@ class BattleView{
         playerHP.setFont(new java.awt.Font("Arial",Font.BOLD,20));
         playerHP.setForeground(Color.white);
         playerHP.setBounds(530,370,250,30);
-        panel.add(playerHP);
+        add(playerHP);
         // Enemy HP
         enemyHP.setFont(new java.awt.Font("Arial",Font.BOLD,20));
         enemyHP.setForeground(Color.white);
         enemyHP.setBounds(525,50,250,30);
-        panel.add(enemyHP);
+        add(enemyHP);
     }
     public void boxLabels(){
         JLabel actionList = new JLabel("  Action list");
@@ -583,7 +607,7 @@ class BattleView{
         actionList.setBackground(Color.black);
         actionList.setForeground(Color.LIGHT_GRAY);
         actionList.setBounds(20,415,200,30);
-        panel.add(actionList);
+        add(actionList);
         
         JLabel actionDescriber = new JLabel("  Action Describer");
         actionDescriber.setOpaque(true);
@@ -591,7 +615,7 @@ class BattleView{
         actionDescriber.setBackground(Color.black);
         actionDescriber.setForeground(Color.LIGHT_GRAY);
         actionDescriber.setBounds(440,415,250,30);
-        panel.add(actionDescriber);
+        add(actionDescriber);
         
         JLabel textBox = new JLabel("  Enemy Action");
         textBox.setOpaque(true);
@@ -599,7 +623,7 @@ class BattleView{
         textBox.setBackground(Color.black);
         textBox.setForeground(Color.LIGHT_GRAY);
         textBox.setBounds(870,415,200,30);
-        panel.add(textBox);
+        add(textBox);
     } 
     public void backgroundDecorations(){
         // action list background
@@ -609,7 +633,7 @@ class BattleView{
         decoration1.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
         decoration1.setBounds(10,430,406,285);
         
-        panel.add(decoration1);
+        add(decoration1);
         // action description background
         JLabel decoration2 = new JLabel(" ");
         decoration2.setOpaque(true);
@@ -617,7 +641,7 @@ class BattleView{
         decoration2.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
         decoration2.setBounds(426,430,416,285);
         
-        panel.add(decoration2);
+        add(decoration2);
         
         // 
         JLabel decoration3 = new JLabel(" ");
@@ -625,11 +649,11 @@ class BattleView{
         decoration3.setBackground(Color.darkGray);
         decoration3.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
         decoration3.setBounds(852,430,406,285);
-        panel.add(decoration3);
+        add(decoration3);
         }
     
     public void showSurrenderConfirmation(){
-         JPanel popup = new JPanel();
+        JPanel popup = new JPanel();
         popup.setLayout(null);
         popup.setBackground(Color.DARK_GRAY);
         popup.setBorder(BorderFactory.createLineBorder(Color.WHITE, 4, true));
@@ -656,10 +680,10 @@ class BattleView{
         noButton.setBounds(260, 100, 120, 40);
         popup.add(noButton);
 
-        panel.add(popup);
-        panel.setComponentZOrder(popup, 0); // bring to front
-        panel.repaint();
-        panel.revalidate();
+        add(popup);
+        setComponentZOrder(popup, 0); // bring to front
+        repaint();
+        revalidate();
         
         // YES Button Logic
         yesButton.addMouseListener(new MouseAdapter() {
@@ -681,8 +705,8 @@ class BattleView{
             public void actionPerformed(ActionEvent e) {
                 setActionDescriberLabel("<html><div style='width: 350px;'>You have surrendered and have been taken<br> prisoner.</div></html>");
                 removeActionListButtons();
-                panel.remove(popup);
-                panel.repaint();
+                remove(popup);
+                repaint();
 
                 Timer timer = new Timer(5000, new ActionListener() {
                     @Override
@@ -713,10 +737,55 @@ class BattleView{
         noButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                panel.remove(popup);
-                panel.repaint();
+                remove(popup);
+                repaint();
             }
         });
-    }       
+    }
+    
+    // Logic for when Help Button is pushed
+    public void showHelp(){
+        
+        JPanel popup = new JPanel();
+        popup.setLayout(null);
+        popup.setBackground(Color.DARK_GRAY);
+        popup.setBorder(BorderFactory.createLineBorder(Color.WHITE, 4, true));
+        popup.setBounds(340, 100, 600, 350);
+        popup.setOpaque(true);
+
+        JLabel helpLabel = new JLabel("<html><div style='width: 500px;'>" +
+            "<h2 style='color:white;'>How to Play</h2>" +
+            "<p style='color:white;'>• Use the <b>ATTACK</b> button to damage enemies.<br>" +
+            "• Use <b>HEAL</b> to restore your HP by 10 points.<br>" +
+            "• Click <b>USE ITEM</b> to select from your inventory.<br>" +
+            "• <b>SURRENDER</b> if you want to give up.<br>" +
+            "• Enemies take their turn after yours — survive as long as possible.<br>" +
+            "• New enemies appear after defeating one. Collect loot and keep fighting!<br>" +
+            "</p></div></html>", SwingConstants.CENTER);
+        helpLabel.setForeground(Color.WHITE);
+        helpLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        helpLabel.setBounds(40, 20, 550, 250);
+        popup.add(helpLabel);
+        
+        JButton closeButton = new JButton("Close");
+        closeButton.setFont(new Font("Arial", Font.BOLD, 18));
+        closeButton.setBackground(Color.BLACK);
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setBounds(240, 280, 120, 40);
+        popup.add(closeButton);
+        
+        add(popup);
+        setComponentZOrder(popup, 0);
+        repaint();
+        revalidate();
+        
+        closeButton.addActionListener(new ActionListener(){
+        @Override
+        public void actionPerformed(ActionEvent e){
+            remove(popup);
+            repaint();
+        }
+    });
+    }
 }
 }
