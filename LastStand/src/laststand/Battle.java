@@ -98,7 +98,7 @@ public class Battle {
                 
                 String defeatText = "\n" + enemy.getName() + " has been defeated!";
                 battleView.setEnemyActionLabel(defeatText);
-                //System.out.println("\n" + enemy.getName() + " has been defeated!");
+                delay();
                 newEnemy();
             }
 
@@ -259,7 +259,7 @@ class BattleView extends JPanel{
 
         // Load and scale enemy sprite
 
-        ImageIcon enemyIcon = new ImageIcon(getClass().getResource("/assets/enemy.png"));
+        ImageIcon enemyIcon = new ImageIcon(getClass().getResource("/assets/enemy1.png"));
         Image scaledEnemyImage = enemyIcon.getImage().getScaledInstance(SPRITE_WIDTH, SPRITE_HEIGHT, Image.SCALE_SMOOTH);
         enemySprite.setIcon(new ImageIcon(scaledEnemyImage));
         enemySprite.setBounds(900, 100, SPRITE_WIDTH, SPRITE_HEIGHT);
