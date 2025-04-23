@@ -43,8 +43,10 @@ public class GameData {
      */
     public Entity getRandomEntity(){
         Random rand = new Random();
-        Entity randomEntity = entity.get(rand.nextInt(entity.size()));
+        Entity dummy = entity.get(rand.nextInt(entity.size()));
+        Entity randomEntity = new Entity(dummy.getName(),dummy.getHealth(),dummy.getAttackPower(),dummy.getDefense()); 
         return randomEntity;
+        
     }
     
     /**
