@@ -7,7 +7,7 @@ package laststand;
 import javax.swing.SwingUtilities;
 
 /**
- * Testing class for the Battle system with more compact code structure
+ * Testing class for the Battle system
  */
 public class BattleTest implements TestRunner {
     private final GameData data = new GameData("data.json");
@@ -37,11 +37,6 @@ public class BattleTest implements TestRunner {
     @Override
     public String getTestName() {
         return "Battle System Test";
-    }
-    
-    // Backward compatibility
-    public void runBattleTest() {
-        runAllTests();
     }
     
     /**
