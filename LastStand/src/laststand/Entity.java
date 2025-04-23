@@ -11,7 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class Entity represents the class that is to be defeated by Class Player
+ * Class Entity represents the class where user actions are centered around
+ * User's actions such as attack/useItem/heal are dependent on this class
  * entityName - name of Entity
  * Health Health - Class representing 'hitpoints'
  * entityAttackPower - Amount of 'damage' done by entity

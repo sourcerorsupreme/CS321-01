@@ -322,6 +322,7 @@ class BattleView extends JPanel{
     // Remove Action List(){
     /**
      * Hide action buttons on GUI
+     * Used when player either dies or to display 'inventory'
      */
     public void removeActionListButtons(){
         remove(attack);
@@ -331,10 +332,17 @@ class BattleView extends JPanel{
         revalidate();
         repaint();  
     }
-    // Display Action List
+    /**
+     * Set entity for controller to use
+     * @param entity 
+     */
     public void setEnemy(Entity entity){
         enemy = entity;
     }
+    /**
+     * Display the actions the user can perform
+     * Used upon view initialization and logic after removing action buttons
+     */
     public void displayActionListButtons(){
         add(attack);
         add(heal);
@@ -348,17 +356,31 @@ class BattleView extends JPanel{
         repaint();
     }
     // Set Enemy HP
+    /**
+     * Changes the label on the view indicating the state of the enemy entity
+     * @param maxHP
+     * @param currentHP 
+     */
     public void setEnemyHP(int maxHP, int currentHP){
         String text = "ENEMY HP: " + currentHP + "/" + maxHP;
 
         enemyHP.setText(text);
     }
     // Set Player HP
+    /**
+     * Changes the label on the view indicating the state of the player entity
+     * @param maxHP
+     * @param currentHP 
+     */
     public void setPlayerHP(int maxHP, int currentHP){
         String text = "YOUR HP: " + currentHP + "/" + maxHP;
         playerHP.setText(text);
     }
     // Turn indicator in top left corner
+    /**
+     * Changes the label on the view indicating if it's the player turn or enemy turn
+     * @param turn 
+     */
     public void setTurn(boolean turn){
         if (!turn){
             this.turn.setText(" It's Your Enemies Turn!");
@@ -367,21 +389,41 @@ class BattleView extends JPanel{
             this.turn.setText(" It's Your Turn!");
         }
     }
+    /**
+     * Changes the label on the view indicating what action the enemy entity has performed.
+     * @param text 
+     */
     public void setEnemyActionLabel(String text){
         enemyActionLabel.setText(text);
     }
+    /**
+     * Logic condition used for determining  whether action button's perform their function or not
+     * @param turn 
+     */
     public void setIsPlayerTurn(boolean turn){
         isPlayerTurn = turn;
     }
+    /**
+     * Logic condition used for determining whether or not the enemy entity can perform actions
+     * @param turn 
+     */
     public void setIsPlayerReady(boolean turn){
         isPlayerReady = turn;
     }
     public boolean getIsPlayerReady(){
         return isPlayerReady;
     }
+    /**
+     * Changes the label on the view which serves as informative text regarding the effects of action/items
+     * @param text 
+     */
     public void setActionDescriberLabel(String text){
         actionDescriberLabel.setText(text);
     }
+    /**
+     * Update itemPanel with items contained in the player's inventory
+     * The items will be clickable and have some effect on either the player or enemy entity depending on it's effect
+     */
     private void addItemsToLabel(){
         itemPanel.setVisible(true);
         List<Item> inventory = player.getInventory();
@@ -440,6 +482,7 @@ class BattleView extends JPanel{
         itemPanel.repaint();
         setComponentZOrder(itemPanel, 0);
     }
+    
     public void escapeLabelStyle(){
         escapePanel.setLayout(null);
         escapePanel.setBackground(Color.DARK_GRAY);
@@ -475,6 +518,9 @@ class BattleView extends JPanel{
         exit.addActionListener(e -> System.exit(0));
     }
     // Action Listener
+    /**
+     * Method used to allow user to either save their progress or exit the game
+     */
     public void escapeKeyListener(){
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
             KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), 
@@ -488,6 +534,9 @@ class BattleView extends JPanel{
             }
         });
 }
+    /**
+     * Action buttons provide a description on their affects or perform some corresponding action
+     */
     public void actionListListeners(){
         actionDescriberOK.addActionListener(new ActionListener(){
            @Override
