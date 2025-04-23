@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.KeyEvent;
 import java.util.HashSet;
 
 import java.util.List;
@@ -49,14 +50,11 @@ public class Battle {
             this.enemy = enemy;
             this.frame = frame;
             this.battleView = new BattleView(player.getMaxHealth(), enemy.getMaxHealth(), player, enemy, frame);
-            this.turn = battleView.getIsPlayerReady();
-            player.addItem(data.getRandomItem());
-            
+            this.turn = battleView.getIsPlayerReady(); 
             
             frame.setContentPane(battleView);
             frame.revalidate();
             frame.repaint();
-            player.addItem(data.getRandomItem());
             // Start the loop in the background
             SwingWorker<Void, Void> worker = new SwingWorker<>() {
                 @Override
@@ -106,6 +104,7 @@ public class Battle {
         battleView.setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
         player.addToInventory(data.getRandomItem());
         player.addToInventory(data.getRandomItem());
+        player.increaseStats();
     }
     private void enemyTurn(Entity enemy, Entity player) {
         double healthPercent = (double) enemy.getCurrentHealth() / enemy.getMaxHealth();
@@ -206,6 +205,7 @@ class BattleView extends JPanel{
     private static final int SPRITE_WIDTH = 250;
     private static final int SPRITE_HEIGHT = 250;
  
+    private JPanel escapePanel = new JPanel();
 
     // Renders Initial Frame
     // TODO: Supply Item List    
@@ -237,7 +237,6 @@ class BattleView extends JPanel{
         revalidate();
         repaint();
 
-        
         setTurn(true);
 
         setPlayerHP(maxPlayerHP, maxPlayerHP);
@@ -255,6 +254,8 @@ class BattleView extends JPanel{
         backgroundDecorations();
         setActionListButtonStyle();
         actionListListeners();
+        escapeLabelStyle();
+        escapeKeyListener();
         setBackground(Color.BLACK);
         setOpaque(true);
         //
@@ -356,11 +357,11 @@ class BattleView extends JPanel{
                     @Override
                     public void actionPerformed(ActionEvent e){
                         if (isPlayerTurn){
-                             if (item.getItemType() == Item.itemEffect.Heal){
+                             if (item.getItemEffect() == Item.itemEffect.Heal){
                                 item.useItem(player);
                                 setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
                              }
-                             else if (item.getItemType() == Item.itemEffect.Damage)
+                             else if (item.getItemEffect() == Item.itemEffect.Damage)
                                 item.useItem(enemy);
                                 setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
                         }
@@ -384,7 +385,54 @@ class BattleView extends JPanel{
         itemPanel.repaint();
         setComponentZOrder(itemPanel, 0);
     }
+    public void escapeLabelStyle(){
+        escapePanel.setLayout(null);
+        escapePanel.setBackground(Color.DARK_GRAY);
+        escapePanel.setBorder(BorderFactory.createLineBorder(Color.WHITE, 4, true));
+        escapePanel.setBounds(400, 250, 480, 200);
+        escapePanel.setOpaque(true);
+
+        JButton save = new JButton("SAVE");
+        save.setFont(new Font("Arial", Font.BOLD, 18));
+        save.setBackground(Color.BLACK);
+        save.setForeground(Color.WHITE);
+        save.setBounds(80, 100, 120, 40);
+        escapePanel.add(save);
+
+        JButton exit = new JButton("EXIT");
+        exit.setFont(new Font("Arial", Font.BOLD, 18));
+        exit.setBackground(Color.BLACK);
+        exit.setForeground(Color.WHITE);
+        exit.setBounds(260, 100, 120, 40);
+        escapePanel.add(exit);
+        escapePanel.setVisible(false);
+        add(escapePanel);
+        setComponentZOrder(escapePanel, 0); // bring to front
+        repaint();
+        revalidate();
+        
+        save.addActionListener(e -> {
+            int saveAmount = GameData.countJsonFiles() + 1;
+            String saveName = "save" + saveAmount + ".json";
+            GameData.saveGame(player, saveName);
+            System.exit(0);
+        });
+        exit.addActionListener(e -> System.exit(0));
+    }
     // Action Listener
+    public void escapeKeyListener(){
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+            KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), 
+            "escape"
+        );
+    
+        getActionMap().put("escape", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                escapePanel.setVisible(!escapePanel.isVisible());
+            }
+        });
+}
     public void actionListListeners(){
         actionDescriberOK.addActionListener(new ActionListener(){
            @Override
@@ -517,7 +565,6 @@ class BattleView extends JPanel{
         itemPanel.setOpaque(true);
         itemPanel.setVisible(false);
         itemPanel.getViewport().setOpaque(true);
-        System.out.println(SwingUtilities.getWindowAncestor(itemPanel));
         add(itemPanel);
 
     }

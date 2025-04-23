@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.event.ActionListener;
+import java.io.File;
         
 /**
  *
@@ -30,13 +31,15 @@ public class StartMenu extends JPanel{
     private JButton loadButton      = new JButton("Load Save");
     private JButton quitButton      = new JButton("Quit");
     
+    private JScrollPane pane = new JScrollPane();
+    
     public StartMenu(JFrame frame){
         this.frame = frame;
         loadTitleImages();
         buildPanel();
         addListeners();
         startMenuTitleAnimation();
-        
+        //panel.add(pane);
         frame.setContentPane(panel);
         frame.pack();                  
         frame.setResizable(false);
@@ -139,7 +142,8 @@ public class StartMenu extends JPanel{
         Entity player = new Entity("Hero", 100, 15, 5);
         GameData data = new GameData("data.json");
         Entity enemy = data.getRandomEntity();
-        
+        player.addItem(data.getRandomItem());
+        player.addItem(data.getRandomItem());
         frame.getContentPane().removeAll();
         frame.revalidate();
         frame.repaint();
@@ -147,14 +151,71 @@ public class StartMenu extends JPanel{
         new Battle(player, enemy, frame);
     }
     
+    private void startGame(Entity player){
+        GameData data = new GameData("data.json");
+        Entity enemy = data.getRandomEntity();
+        
+        frame.getContentPane().removeAll();
+        frame.revalidate();
+        frame.repaint();
+        
+        new Battle(player, enemy, frame);
+    }
     private void addListeners(){
         newGameButton.addActionListener(e -> startGame());
         
-        loadButton.addActionListener(e -> {
-            // Load save logic later
+        if (GameData.countJsonFiles() > 0){
+            loadButton.addActionListener(e -> {
+            displaySaves();
         });
+        }
+        
 
         quitButton.addActionListener(e -> System.exit(0));
+    }
+    
+    private void displaySaves(){
+        panel.removeAll();
+        
+        JScrollPane pane = new JScrollPane();
+        
+        pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        pane.setBounds(410,320,360,235);
+        pane.getViewport().setBackground(Color.darkGray);
+        pane.setForeground(Color.white);
+        pane.setOpaque(true);
+        JScrollBar verticalScrollBar = pane.getVerticalScrollBar();
+
+        // Basic styling
+        verticalScrollBar.setBackground(Color.BLACK);
+        verticalScrollBar.setForeground(Color.WHITE);
+        pane.getViewport().setOpaque(true);
+        JPanel container = new JPanel();
+        File[] files = GameData.getFiles();
+        for (int i = 0; i < GameData.countJsonFiles(); i++){
+            String name = GameData.extractName(files[i].getPath());
+            JButton button = new JButton(name);
+            button.setFont(new java.awt.Font("Arial",Font.BOLD,25));
+            button.setBackground(Color.darkGray);
+            button.setForeground(Color.white);
+            button.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
+            button.setOpaque(true);
+            Entity player = GameData.loadSave(name+".json");
+            button.addActionListener(e -> startGame(player));
+            container.add(Box.createRigidArea(new Dimension(0, 10)));
+            container.add(button);
+        }
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        container.setBackground(Color.darkGray);
+        container.add(Box.createVerticalGlue());
+        container.setBorder(BorderFactory.createLineBorder(Color.white, 5, true));
+        pane.setViewportView(container);
+        pane.revalidate();
+        pane.repaint();
+        setComponentZOrder(pane, 0);
+        panel.add(pane);
+        panel.repaint();
+        panel.revalidate();
     }
 }
     

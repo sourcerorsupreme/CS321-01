@@ -6,6 +6,7 @@ package laststand;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * Class Item is one of the actions selectable by the Player Class
  * itemEffect describes what the item selected by the Player does
@@ -53,12 +54,16 @@ public class Item {
             }
         }
     }
+    public int getValue(){
+        return value;
+    }
     public String getItemName(){
         return itemName;
     }
-    public itemEffect getItemType(){
+    public itemEffect getItemEffect(){
         return type;
     }
+    @JsonIgnore
     public String getItemDescription() {
         return switch(this.type) {
             case Heal -> "Heal yourself for " + this.value + " hp.";
