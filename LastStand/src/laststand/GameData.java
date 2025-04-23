@@ -56,4 +56,63 @@ public class GameData {
         Item randomItem = item.get(rand.nextInt(item.size()));
         return randomItem;
     }
+    /**
+     * Save player information to json file
+     * @param player
+     * @param filename 
+     */
+    public static void saveGame(Entity player, String filename){
+        ObjectMapper mapper = new ObjectMapper();
+        try{
+            mapper.writeValue(new File(filename), player);
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+    public static Entity loadSave(String filename){
+        ObjectMapper mapper = new ObjectMapper();
+            try{
+                Entity entity = mapper.readValue(new File(filename),Entity.class);
+                return entity;
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+    }
+    public static int countJsonFiles(){
+        File directory = new File("./");
+        
+        if (!directory.isDirectory()){
+            throw new IllegalArgumentException("Path is not a directory");
+        }
+        File[] files = directory.listFiles((directory1, name) -> {
+            boolean isJson = name.toLowerCase().endsWith(".json");
+            return isJson && !name.equals("data.json");
+        });
+
+        return files != null ? files.length : 0;
+    }
+    
+    public static File[] getFiles(){
+        File directory = new File("./");
+        
+        if (!directory.isDirectory()){
+            throw new IllegalArgumentException("Path is not a directory");
+        }
+        
+        File[] files = directory.listFiles((directory1, name) -> {
+            boolean isJson = name.toLowerCase().endsWith(".json");
+            return isJson && !name.equals("data.json");
+        });
+
+        return files;
+    }
+    public static String extractName(String name){
+        int lastBackslash = name.lastIndexOf('\\');
+        int lastDot = name.lastIndexOf('.');
+        return name.substring(lastBackslash + 1, lastDot);
+    }
 }
+
