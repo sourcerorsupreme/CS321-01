@@ -56,7 +56,7 @@ public class Battle {
             frame.setContentPane(battleView);
             frame.revalidate();
             frame.repaint();
-
+            player.addItem(data.getRandomItem());
             // Start the loop in the background
             SwingWorker<Void, Void> worker = new SwingWorker<>() {
                 @Override
@@ -185,7 +185,8 @@ class BattleView extends JPanel{
     private JLabel playerSprite = new JLabel();
     private JLabel enemySprite = enemySprite = new JLabel();
 
-    private JLabel enemyActionLabel = new JLabel("");
+//    private JLabel enemyActionLabel = new JLabel("");
+    private JTextArea enemyActionLabel = new JTextArea("");
     private JLabel actionDescriberLabel = new JLabel("");
     
     private JButton attack = new JButton("ATTACK");
@@ -328,12 +329,14 @@ class BattleView extends JPanel{
     private void addItemsToLabel(){
         itemPanel.setVisible(true);
         List<Item> inventory = player.getInventory();
+//        System.out.println(player.getInventory()[0]);
         JPanel container = new JPanel();
         container.setBackground(Color.darkGray);
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.setOpaque(true);
         
         for (Item item: inventory){
+            System.out.println(item.getItemName());
             JButton button = new JButton(item.getItemName());
             button.setFont(new java.awt.Font("Arial",Font.BOLD,25));
             button.setBackground(Color.darkGray);
@@ -367,8 +370,8 @@ class BattleView extends JPanel{
                         container.removeAll();
                         itemPanel.setVisible(false);
                         displayActionListButtons();
-                        revalidate();
-                        repaint();
+                        container.revalidate();
+                        container.repaint();
 
                     }
                  });
@@ -379,6 +382,7 @@ class BattleView extends JPanel{
         itemPanel.setViewportView(container);
         itemPanel.revalidate();
         itemPanel.repaint();
+        setComponentZOrder(itemPanel, 0);
     }
     // Action Listener
     public void actionListListeners(){
@@ -513,7 +517,9 @@ class BattleView extends JPanel{
         itemPanel.setOpaque(true);
         itemPanel.setVisible(false);
         itemPanel.getViewport().setOpaque(true);
-        frame.add(itemPanel);
+        System.out.println(SwingUtilities.getWindowAncestor(itemPanel));
+        add(itemPanel);
+
     }
     public void actionDescriberLabelStyle(){
         actionDescriberLabel.setFont(new java.awt.Font("Arial",Font.BOLD,15));
@@ -527,6 +533,8 @@ class BattleView extends JPanel{
         enemyActionLabel.setBackground(Color.darkGray);
         enemyActionLabel.setForeground(Color.white);
         enemyActionLabel.setBounds(875,455,360,55);
+        enemyActionLabel.setLineWrap(true);
+        enemyActionLabel.setWrapStyleWord(true);
         add(enemyActionLabel);
     }
     public void textBoxOK(){
