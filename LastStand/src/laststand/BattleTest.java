@@ -99,10 +99,10 @@ public class BattleTest implements TestRunner {
             System.out.println("Testing item: " + firstItem.getItemName());
             
             // Use item based on its type
-            if (firstItem.getItemType() == Item.itemEffect.Heal) {
+            if (firstItem.getItemEffect() == Item.itemEffect.Heal) {
                 itemPlayer.heal(10);
                 System.out.println("Used healing item: " + itemPlayer.getName() + " HP: " + itemPlayer.getCurrentHealth());
-            } else if (firstItem.getItemType() == Item.itemEffect.Damage) {
+            } else if (firstItem.getItemEffect() == Item.itemEffect.Damage) {
                 itemPlayer.attack(normalEnemy);
                 System.out.println("Used damage item: " + normalEnemy.getName() + " HP: " + normalEnemy.getCurrentHealth());
             }
