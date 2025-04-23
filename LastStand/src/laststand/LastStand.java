@@ -46,6 +46,18 @@ public class LastStand{
             StartMenu menu = new StartMenu(frame);
             
             frame.setVisible(true);
-        });
+
+        //Create player and enemy with test Values
+        //Entity player = new Entity("Player", 100, 15, 5);
+        //Entity enemy = data.getRandomEntity();
+
+        //GameData data = new GameData("data.json");
+         
+        //Start screen Battle
+        //Battle battle = new Battle(player, enemy);
+        
+        //BattleTest newtest = new BattleTest();
+        //newtest.runAllTests();
+
     }
 }

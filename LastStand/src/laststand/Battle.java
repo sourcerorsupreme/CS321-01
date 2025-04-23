@@ -71,6 +71,8 @@ public class Battle {
             while (player.isAlive()) {
                 // Loop while enemy is alive
                 while (enemy.isAlive()) {
+                    
+                    System.out.println(player.isAlive());
 
                     // Wait till user clicks TextBoxOK
                     while (!turn){
@@ -86,17 +88,23 @@ public class Battle {
                     battleView.setTurn(true);
                     //battleView.setIsPlayerTurn(turn);
                     battleView.setIsPlayerReady(turn);
+                    
+                    // Fallen in battle.
+                    if (!player.isAlive())
+                    {
+                        handlePlayerDeath();
+                    }
                 }
                 
                 String defeatText = "\n" + enemy.getName() + " has been defeated!";
                 battleView.setEnemyActionLabel(defeatText);
                 //System.out.println("\n" + enemy.getName() + " has been defeated!");
                 newEnemy();
-                //return;
             }
 
             System.out.println("You have died.");
-    }
+        }
+        
     private void newEnemy(){
         battleView.setActionDescriberLabel("A new enemy has appeared.");
         enemy = data.getRandomEntity();
@@ -161,6 +169,31 @@ public class Battle {
             return false;
             
     }
+    
+    private void handlePlayerDeath() {
+        // Disable battle controls while showing the dialog
+        battleView.removeActionListButtons();
+
+        // Set message about player's defeat
+        battleView.setActionDescriberLabel(player.getName() + " has been defeated!");
+
+        // Show the death confirmation dialog
+        battleView.showDeathConfirmation();
+
+        // If we get here, player chose to continue (handled in the UI)
+        // Restore player health to continue
+        player.heal(player.getMaxHealth()); // Fully restore health
+        battleView.setPlayerHP(player.getMaxHealth(), player.getCurrentHealth());
+
+        // Reset battle state
+        battleView.setTurn(true);
+        battleView.setIsPlayerReady(false);
+        battleView.setIsPlayerTurn(true);
+
+        // Show action buttons again
+        battleView.displayActionListButtons();
+    }
+}
 //        List<Item> inventory = enemy.getInventory();
 //        for (int i = 0; i < inventory.size(); i++) {
 //            Item item = inventory.get(i);
@@ -324,7 +357,7 @@ class BattleView extends JPanel{
     public boolean getIsPlayerReady(){
         return isPlayerReady;
     }
-    private void setActionDescriberLabel(String text){
+    public void setActionDescriberLabel(String text){
         actionDescriberLabel.setText(text);
     }
     private void addItemsToLabel(){
@@ -840,7 +873,190 @@ class BattleView extends JPanel{
             remove(popup);
             repaint();
         }
-    });
+    
+    public void showSurrenderConfirmation(){
+        JPanel popup = new JPanel();
+        popup.setLayout(null);
+        popup.setBackground(Color.DARK_GRAY);
+        popup.setBorder(BorderFactory.createLineBorder(Color.WHITE, 4, true));
+        popup.setBounds(400, 250, 480, 200);
+        popup.setOpaque(true);
+
+        JLabel confirmLabel = new JLabel("<html><div style='text-align: center;'>Are you sure you want to surrender?</div></html>", SwingConstants.CENTER);
+        confirmLabel.setForeground(Color.WHITE);
+        confirmLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        confirmLabel.setBounds(40, 30, 400, 30);
+        popup.add(confirmLabel);
+
+        JButton yesButton = new JButton("YES");
+        yesButton.setFont(new Font("Arial", Font.BOLD, 18));
+        yesButton.setBackground(Color.BLACK);
+        yesButton.setForeground(Color.WHITE);
+        yesButton.setBounds(80, 100, 120, 40);
+        popup.add(yesButton);
+
+        JButton noButton = new JButton("NO");
+        noButton.setFont(new Font("Arial", Font.BOLD, 18));
+        noButton.setBackground(Color.BLACK);
+        noButton.setForeground(Color.WHITE);
+        noButton.setBounds(260, 100, 120, 40);
+        popup.add(noButton);
+
+        panel.add(popup);
+        panel.setComponentZOrder(popup, 0); // bring to front
+        panel.repaint();
+        panel.revalidate();
+        
+        // YES Button Logic
+        yesButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                yesButton.setFont(new Font("Arial", Font.BOLD, 9));
+                yesButton.setText("<HTML>Bring shame upon your house.<HTML>");
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                yesButton.setFont(new Font("Arial", Font.BOLD, 18));
+                yesButton.setText("YES");
+            }
+        });
+        
+        yesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setActionDescriberLabel("<html><div style='width: 350px;'>You have surrendered and have been taken<br> prisoner.</div></html>");
+                removeActionListButtons();
+                panel.remove(popup);
+                panel.repaint();
+
+                Timer timer = new Timer(5000, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent evt) {
+                        System.exit(0);
+                    }
+                });
+                timer.setRepeats(false);
+                timer.start();
+            }
+        });
+
+        // NO button logic
+        noButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                noButton.setFont(new Font("Arial", Font.BOLD, 9));
+                noButton.setText("<HTML>Live long and prosper!<HTML>");
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                noButton.setFont(new Font("Arial", Font.BOLD, 18));
+                noButton.setText("NO");
+            }
+        });
+        
+        noButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                panel.remove(popup);
+                panel.repaint();
+            }
+        });
     }
-}
+    
+    public void showDeathConfirmation() {
+        JPanel popup = new JPanel();
+        popup.setLayout(null);
+        popup.setBackground(Color.DARK_GRAY);
+        popup.setBorder(BorderFactory.createLineBorder(Color.WHITE, 4, true));
+        popup.setBounds(400, 250, 480, 200);
+        popup.setOpaque(true);
+
+        JLabel confirmLabel = new JLabel("<html><div style='text-align: center;'>Continue to Struggle?</div></html>", SwingConstants.CENTER);
+        confirmLabel.setForeground(Color.WHITE);
+        confirmLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        confirmLabel.setBounds(40, 30, 400, 30);
+        popup.add(confirmLabel);
+
+        JButton yesButton = new JButton("YES");
+        yesButton.setFont(new Font("Arial", Font.BOLD, 18));
+        yesButton.setBackground(Color.BLACK);
+        yesButton.setForeground(Color.WHITE);
+        yesButton.setBounds(80, 100, 120, 40);
+        popup.add(yesButton);
+
+        JButton noButton = new JButton("NO");
+        noButton.setFont(new Font("Arial", Font.BOLD, 18));
+        noButton.setBackground(Color.BLACK);
+        noButton.setForeground(Color.WHITE);
+        noButton.setBounds(260, 100, 120, 40);
+        popup.add(noButton);
+
+        panel.add(popup);
+        panel.setComponentZOrder(popup, 0); // bring to front
+        panel.repaint();
+        panel.revalidate();
+
+        // YES Button Logic - Continue playing
+        yesButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                yesButton.setFont(new Font("Arial", Font.BOLD, 9));
+                yesButton.setText("<HTML>I can't fall now!<HTML>");
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                yesButton.setFont(new Font("Arial", Font.BOLD, 18));
+                yesButton.setText("YES");
+            }
+        });
+
+        yesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Player chooses to continue
+                setActionDescriberLabel("<html><div style='width: 350px;'>You struggle back to your feet, determined to fight on!</div></html>");
+                panel.remove(popup);
+                panel.repaint();
+                // Player status will be reset in the handlePlayerDeath method
+            }
+        });
+
+        // NO button logic - End game
+        noButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                noButton.setFont(new Font("Arial", Font.BOLD, 9));
+                noButton.setText("<HTML>End this struggle.<HTML>");
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                noButton.setFont(new Font("Arial", Font.BOLD, 18));
+                noButton.setText("NO");
+            }
+        });
+
+        noButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setActionDescriberLabel("<html><div style='width: 350px;'>I'm tired of the grind.</div></html>");
+                removeActionListButtons();
+                panel.remove(popup);
+                panel.repaint();
+
+                Timer timer = new Timer(50, new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent evt) {
+                        System.exit(0);
+                    }
+                });
+                timer.setRepeats(false);
+                timer.start();
+            }
+        });
+    }
 }
