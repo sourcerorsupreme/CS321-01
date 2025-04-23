@@ -44,6 +44,11 @@ public class Item {
     }
     
     // Take player class as input
+    /**
+     * This will be used in game logic to consume the item and perform some
+     * function dependent on the item's effect.
+     * @param target The entity that will be affected by the item
+     */
     public void useItem(Entity target){
         switch(this.type){
             case Heal -> // increase health of player
@@ -63,6 +68,11 @@ public class Item {
     public itemEffect getItemEffect(){
         return type;
     }
+    /**
+     * Used by the view to easily generate an informative description of the item's
+     * effects to the user.
+     * @return 
+     */
     @JsonIgnore
     public String getItemDescription() {
         return switch(this.type) {

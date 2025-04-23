@@ -66,7 +66,12 @@ public class Battle {
             worker.execute();
             
         }
-        
+        /**
+         * Controls the main logic of the game
+         * Determines when user inputs are allowed and when the 'enemy' can perform their actions
+         * Determines when a new enemy needs to be generated
+         * Determines the behavior of the program when the user dies
+         */
         private void startBattle() {
             while (player.isAlive()) {
                 // Loop while enemy is alive
@@ -105,6 +110,12 @@ public class Battle {
             System.out.println("You have died.");
         }
         
+    /**
+     * Helper method to reward players for defeating an enemy.
+     * Inform user through view that a new enemy has been generated
+     * Update enemy components in both the view and controller
+     * Add items to the player's inventory & increase the attack/defense power of the player.
+     */
     private void newEnemy(){
         battleView.setActionDescriberLabel("A new enemy has appeared.");
         enemy = data.getRandomEntity();
@@ -114,6 +125,11 @@ public class Battle {
         player.addToInventory(data.getRandomItem());
         player.increaseStats();
     }
+    /**
+     * Handle the AI logic; The enemy entity will perform a certain action dependent on its state
+     * @param enemy The entity that will be performing the action
+     * @param player The entity that will be affected by the enemy entity performing an attack action
+     */
     private void enemyTurn(Entity enemy, Entity player) {
         double healthPercent = (double) enemy.getCurrentHealth() / enemy.getMaxHealth();
 
@@ -153,6 +169,9 @@ public class Battle {
 
         }
     }
+    /**
+     * Thread delay to give logic time to update
+     */
     private void delay(){
          try {
              Thread.sleep(50);
@@ -161,6 +180,11 @@ public class Battle {
                  e.printStackTrace();
          }
      }
+    /**
+     * Helper function to 
+     * @param enemy
+     * @return 
+     */
     private boolean attemptHeal(Entity enemy) {
         if (enemy.getCurrentHealth()> 5) {
             System.out.println(enemy.getName() + "healed");
@@ -169,7 +193,11 @@ public class Battle {
             return false;
             
     }
-    
+    /**
+     * Helper method to determine sequence of events when player loses game.
+     * Yes -> Reset state of view/controller
+     * No -> Exit the game
+     */
     private void handlePlayerDeath() {
         // Disable battle controls while showing the dialog
         battleView.removeActionListButtons();
@@ -194,15 +222,6 @@ public class Battle {
         battleView.displayActionListButtons();
     }
 }
-//        List<Item> inventory = enemy.getInventory();
-//        for (int i = 0; i < inventory.size(); i++) {
-//            Item item = inventory.get(i);
-//            if (item != null && item.getTag().equalsIgnoreCase("potion")) {
-//                inventory.remove(i); // consume potion
-//                return true;
-//            }
-//        }
-//        return false;
 
 
 class BattleView extends JPanel{
@@ -301,6 +320,9 @@ class BattleView extends JPanel{
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
     // Remove Action List(){
+    /**
+     * Hide action buttons on GUI
+     */
     public void removeActionListButtons(){
         remove(attack);
         remove(heal);

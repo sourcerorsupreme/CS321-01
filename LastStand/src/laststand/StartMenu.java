@@ -11,9 +11,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
         
 /**
- *
- * @author tommy
- * 4/20/25: Class Created to make and load start menu.
+ * Combined view/controller that allows the user to either begin a new 
+ * instance to the game or load in a prior instance.
  */
 public class StartMenu extends JPanel{
     private JFrame frame;
