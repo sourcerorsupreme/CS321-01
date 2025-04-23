@@ -137,6 +137,7 @@ public class Battle {
             battleView.setEnemyActionLabel(enemy.getName() + " attacks!");
 //            System.out.println(enemy.getName() + " attacks!");
             enemy.attack(player);
+            battleView.flashPlayerSprite(battleView.playerBlockImg, 1500);
         } else if (healthPercent >= 0.30) {
             Random rand = new Random();
             int actionRoll = rand.nextInt(100); // 0–99
@@ -145,6 +146,7 @@ public class Battle {
                 battleView.setEnemyActionLabel(enemy.getName() + " attacks!");
 //                System.out.println(enemy.getName() + " attacks!");
                 enemy.attack(player);
+                battleView.flashPlayerSprite(battleView.playerBlockImg, 1500);
             } else {
                 if (attemptHeal(enemy)) {
                     battleView.setEnemyActionLabel(enemy.getName() + " uses a potion to heal!");
@@ -154,6 +156,7 @@ public class Battle {
                     battleView.setEnemyActionLabel(enemy.getName() + " tries to heal but has no potions. Attacking!");
                     // System.out.println(enemy.getName() + " tries to heal but has no potions. Attacking!");
                     enemy.attack(player);
+                    battleView.flashPlayerSprite(battleView.playerBlockImg, 1500);
                 }
             }
         } else {
@@ -165,6 +168,7 @@ public class Battle {
                 battleView.setEnemyActionLabel(enemy.getName() + " is low on health but keeps fighting!");
                 //System.out.println(enemy.getName() + " is low on health but keeps fighting!");
                 enemy.attack(player);
+                battleView.flashPlayerSprite(battleView.playerBlockImg, 1500);
             }
 
         }
@@ -254,8 +258,13 @@ class BattleView extends JPanel{
     private JScrollPane itemPanel = new JScrollPane();
     private boolean isPlayerTurn = true;
     private boolean isPlayerReady = false;
-    private static final int SPRITE_WIDTH = 250;
-    private static final int SPRITE_HEIGHT = 250;
+    private static final int SPRITE_WIDTH = 320;
+    private static final int SPRITE_HEIGHT = 320;
+    private Player playerAnimator;
+    
+    public  String playerAttackImg = "/assets/player/playerAttack.png";
+    public  String playerBlockImg = "/assets/player/playerBlock.png";
+    
  
     private JPanel escapePanel = new JPanel();
 
@@ -270,11 +279,24 @@ class BattleView extends JPanel{
 
         
         // Load and scale player sprite
-
-        ImageIcon playerIcon = new ImageIcon(getClass().getResource("/assets/player1.png"));
-        Image scaledPlayerImage = playerIcon.getImage().getScaledInstance(SPRITE_WIDTH, SPRITE_HEIGHT, Image.SCALE_SMOOTH);
-        playerSprite.setIcon(new ImageIcon(scaledPlayerImage));
         playerSprite.setBounds(200, 100, SPRITE_WIDTH, SPRITE_HEIGHT);
+        
+         String[] playerPaths = {
+        "/assets/player/player1.png",
+        "/assets/player/player2.png",
+        "/assets/player/player3.png",
+        "/assets/player/player4.png",
+        "/assets/player/player5.png",
+        "/assets/player/player6.png",
+        "/assets/player/player7.png"
+    };
+         
+         playerAnimator = new Player(
+            playerSprite, playerPaths,
+            SPRITE_WIDTH, SPRITE_HEIGHT,
+            450      
+         );
+         playerAnimator.start();
 
         // Load and scale enemy sprite
 
@@ -319,6 +341,25 @@ class BattleView extends JPanel{
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
+    
+    public void flashPlayerSprite(String resourcePath, int displayMs) {
+    //stop the idle animation
+    playerAnimator.stop();
+
+    //load & scale the one-off icon
+    ImageIcon ico = new ImageIcon(getClass().getResource(resourcePath));
+    Image scaled = ico.getImage()
+                     .getScaledInstance(SPRITE_WIDTH, SPRITE_HEIGHT, Image.SCALE_SMOOTH);
+    playerSprite.setIcon(new ImageIcon(scaled));
+
+    //after milliseconds, revert to the idle animation
+    Timer t = new Timer(displayMs, e -> {
+        ((Timer)e.getSource()).stop();
+        playerAnimator.start();
+    });
+    t.setRepeats(false);
+    t.start();
+}
     // Remove Action List(){
     /**
      * Hide action buttons on GUI
@@ -606,6 +647,7 @@ class BattleView extends JPanel{
         @Override
         public void actionPerformed(ActionEvent e) {
             if (isPlayerTurn){
+                flashPlayerSprite(playerAttackImg, 750);
                 System.out.println("ATTACK was clicked!");
                 player.attack(enemy);
                 setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
@@ -918,8 +960,10 @@ class BattleView extends JPanel{
             "• Use <b>HEAL</b> to restore your HP by 10 points.<br>" +
             "• Click <b>USE ITEM</b> to select from your inventory.<br>" +
             "• <b>SURRENDER</b> if you want to give up.<br>" +
+            "• Press ESC if you wish to save or quit.<br>" +
             "• Enemies take their turn after yours — survive as long as possible.<br>" +
             "• New enemies appear after defeating one. Collect loot and keep fighting!<br>" +
+                
             "</p></div></html>", SwingConstants.CENTER);
         
         helpLabel.setForeground(Color.WHITE);
