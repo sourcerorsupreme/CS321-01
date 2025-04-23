@@ -98,7 +98,7 @@ public class Battle {
                 
                 String defeatText = "\n" + enemy.getName() + " has been defeated!";
                 battleView.setEnemyActionLabel(defeatText);
-                //System.out.println("\n" + enemy.getName() + " has been defeated!");
+                delay();
                 newEnemy();
             }
 
@@ -121,6 +121,7 @@ public class Battle {
             battleView.setEnemyActionLabel(enemy.getName() + " attacks!");
 //            System.out.println(enemy.getName() + " attacks!");
             enemy.attack(player);
+            battleView.flashPlayerSprite(battleView.playerBlockImg, 1500);
         } else if (healthPercent >= 0.30) {
             Random rand = new Random();
             int actionRoll = rand.nextInt(100); // 0–99
@@ -129,6 +130,7 @@ public class Battle {
                 battleView.setEnemyActionLabel(enemy.getName() + " attacks!");
 //                System.out.println(enemy.getName() + " attacks!");
                 enemy.attack(player);
+                battleView.flashPlayerSprite(battleView.playerBlockImg, 1500);
             } else {
                 if (attemptHeal(enemy)) {
                     battleView.setEnemyActionLabel(enemy.getName() + " uses a potion to heal!");
@@ -138,6 +140,7 @@ public class Battle {
                     battleView.setEnemyActionLabel(enemy.getName() + " tries to heal but has no potions. Attacking!");
                     // System.out.println(enemy.getName() + " tries to heal but has no potions. Attacking!");
                     enemy.attack(player);
+                    battleView.flashPlayerSprite(battleView.playerBlockImg, 1500);
                 }
             }
         } else {
@@ -149,6 +152,7 @@ public class Battle {
                 battleView.setEnemyActionLabel(enemy.getName() + " is low on health but keeps fighting!");
                 //System.out.println(enemy.getName() + " is low on health but keeps fighting!");
                 enemy.attack(player);
+                battleView.flashPlayerSprite(battleView.playerBlockImg, 1500);
             }
 
         }
@@ -235,8 +239,13 @@ class BattleView extends JPanel{
     private JScrollPane itemPanel = new JScrollPane();
     private boolean isPlayerTurn = true;
     private boolean isPlayerReady = false;
-    private static final int SPRITE_WIDTH = 250;
-    private static final int SPRITE_HEIGHT = 250;
+    private static final int SPRITE_WIDTH = 320;
+    private static final int SPRITE_HEIGHT = 320;
+    private Player playerAnimator;
+    
+    public  String playerAttackImg = "/assets/player/playerAttack.png";
+    public  String playerBlockImg = "/assets/player/playerBlock.png";
+    
  
     private JPanel escapePanel = new JPanel();
 
@@ -251,15 +260,28 @@ class BattleView extends JPanel{
 
         
         // Load and scale player sprite
-
-        ImageIcon playerIcon = new ImageIcon(getClass().getResource("/assets/player1.png"));
-        Image scaledPlayerImage = playerIcon.getImage().getScaledInstance(SPRITE_WIDTH, SPRITE_HEIGHT, Image.SCALE_SMOOTH);
-        playerSprite.setIcon(new ImageIcon(scaledPlayerImage));
         playerSprite.setBounds(200, 100, SPRITE_WIDTH, SPRITE_HEIGHT);
+        
+         String[] playerPaths = {
+        "/assets/player/player1.png",
+        "/assets/player/player2.png",
+        "/assets/player/player3.png",
+        "/assets/player/player4.png",
+        "/assets/player/player5.png",
+        "/assets/player/player6.png",
+        "/assets/player/player7.png"
+    };
+         
+         playerAnimator = new Player(
+            playerSprite, playerPaths,
+            SPRITE_WIDTH, SPRITE_HEIGHT,
+            450      
+         );
+         playerAnimator.start();
 
         // Load and scale enemy sprite
 
-        ImageIcon enemyIcon = new ImageIcon(getClass().getResource("/assets/enemy.png"));
+        ImageIcon enemyIcon = new ImageIcon(getClass().getResource("/assets/enemy1.png"));
         Image scaledEnemyImage = enemyIcon.getImage().getScaledInstance(SPRITE_WIDTH, SPRITE_HEIGHT, Image.SCALE_SMOOTH);
         enemySprite.setIcon(new ImageIcon(scaledEnemyImage));
         enemySprite.setBounds(900, 100, SPRITE_WIDTH, SPRITE_HEIGHT);
@@ -300,6 +322,25 @@ class BattleView extends JPanel{
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
+    
+    public void flashPlayerSprite(String resourcePath, int displayMs) {
+    //stop the idle animation
+    playerAnimator.stop();
+
+    //load & scale the one-off icon
+    ImageIcon ico = new ImageIcon(getClass().getResource(resourcePath));
+    Image scaled = ico.getImage()
+                     .getScaledInstance(SPRITE_WIDTH, SPRITE_HEIGHT, Image.SCALE_SMOOTH);
+    playerSprite.setIcon(new ImageIcon(scaled));
+
+    //after milliseconds, revert to the idle animation
+    Timer t = new Timer(displayMs, e -> {
+        ((Timer)e.getSource()).stop();
+        playerAnimator.start();
+    });
+    t.setRepeats(false);
+    t.start();
+}
     // Remove Action List(){
     public void removeActionListButtons(){
         remove(attack);
@@ -535,6 +576,7 @@ class BattleView extends JPanel{
         @Override
         public void actionPerformed(ActionEvent e) {
             if (isPlayerTurn){
+                flashPlayerSprite(playerAttackImg, 750);
                 System.out.println("ATTACK was clicked!");
                 player.attack(enemy);
                 setEnemyHP(enemy.getMaxHealth(), enemy.getCurrentHealth());
@@ -847,9 +889,12 @@ class BattleView extends JPanel{
             "• Use <b>HEAL</b> to restore your HP by 10 points.<br>" +
             "• Click <b>USE ITEM</b> to select from your inventory.<br>" +
             "• <b>SURRENDER</b> if you want to give up.<br>" +
+            "• Press ESC if you wish to save or quit.<br>" +
             "• Enemies take their turn after yours — survive as long as possible.<br>" +
             "• New enemies appear after defeating one. Collect loot and keep fighting!<br>" +
+                
             "</p></div></html>", SwingConstants.CENTER);
+        
         helpLabel.setForeground(Color.WHITE);
         helpLabel.setFont(new Font("Arial", Font.BOLD, 16));
         helpLabel.setBounds(40, 20, 550, 250);
@@ -873,98 +918,9 @@ class BattleView extends JPanel{
             remove(popup);
             repaint();
         }
-    
-    public void showSurrenderConfirmation(){
-        JPanel popup = new JPanel();
-        popup.setLayout(null);
-        popup.setBackground(Color.DARK_GRAY);
-        popup.setBorder(BorderFactory.createLineBorder(Color.WHITE, 4, true));
-        popup.setBounds(400, 250, 480, 200);
-        popup.setOpaque(true);
-
-        JLabel confirmLabel = new JLabel("<html><div style='text-align: center;'>Are you sure you want to surrender?</div></html>", SwingConstants.CENTER);
-        confirmLabel.setForeground(Color.WHITE);
-        confirmLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        confirmLabel.setBounds(40, 30, 400, 30);
-        popup.add(confirmLabel);
-
-        JButton yesButton = new JButton("YES");
-        yesButton.setFont(new Font("Arial", Font.BOLD, 18));
-        yesButton.setBackground(Color.BLACK);
-        yesButton.setForeground(Color.WHITE);
-        yesButton.setBounds(80, 100, 120, 40);
-        popup.add(yesButton);
-
-        JButton noButton = new JButton("NO");
-        noButton.setFont(new Font("Arial", Font.BOLD, 18));
-        noButton.setBackground(Color.BLACK);
-        noButton.setForeground(Color.WHITE);
-        noButton.setBounds(260, 100, 120, 40);
-        popup.add(noButton);
-
-        panel.add(popup);
-        panel.setComponentZOrder(popup, 0); // bring to front
-        panel.repaint();
-        panel.revalidate();
-        
-        // YES Button Logic
-        yesButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                yesButton.setFont(new Font("Arial", Font.BOLD, 9));
-                yesButton.setText("<HTML>Bring shame upon your house.<HTML>");
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                yesButton.setFont(new Font("Arial", Font.BOLD, 18));
-                yesButton.setText("YES");
-            }
-        });
-        
-        yesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setActionDescriberLabel("<html><div style='width: 350px;'>You have surrendered and have been taken<br> prisoner.</div></html>");
-                removeActionListButtons();
-                panel.remove(popup);
-                panel.repaint();
-
-                Timer timer = new Timer(5000, new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent evt) {
-                        System.exit(0);
-                    }
-                });
-                timer.setRepeats(false);
-                timer.start();
-            }
-        });
-
-        // NO button logic
-        noButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                noButton.setFont(new Font("Arial", Font.BOLD, 9));
-                noButton.setText("<HTML>Live long and prosper!<HTML>");
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                noButton.setFont(new Font("Arial", Font.BOLD, 18));
-                noButton.setText("NO");
-            }
-        });
-        
-        noButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                panel.remove(popup);
-                panel.repaint();
-            }
         });
     }
-    
+
     public void showDeathConfirmation() {
         JPanel popup = new JPanel();
         popup.setLayout(null);
@@ -993,10 +949,10 @@ class BattleView extends JPanel{
         noButton.setBounds(260, 100, 120, 40);
         popup.add(noButton);
 
-        panel.add(popup);
-        panel.setComponentZOrder(popup, 0); // bring to front
-        panel.repaint();
-        panel.revalidate();
+        add(popup);
+        setComponentZOrder(popup, 0); // bring to front
+        repaint();
+        revalidate();
 
         // YES Button Logic - Continue playing
         yesButton.addMouseListener(new MouseAdapter() {
@@ -1018,8 +974,8 @@ class BattleView extends JPanel{
             public void actionPerformed(ActionEvent e) {
                 // Player chooses to continue
                 setActionDescriberLabel("<html><div style='width: 350px;'>You struggle back to your feet, determined to fight on!</div></html>");
-                panel.remove(popup);
-                panel.repaint();
+                remove(popup);
+                repaint();
                 // Player status will be reset in the handlePlayerDeath method
             }
         });
@@ -1044,8 +1000,8 @@ class BattleView extends JPanel{
             public void actionPerformed(ActionEvent e) {
                 setActionDescriberLabel("<html><div style='width: 350px;'>I'm tired of the grind.</div></html>");
                 removeActionListButtons();
-                panel.remove(popup);
-                panel.repaint();
+                remove(popup);
+                repaint();
 
                 Timer timer = new Timer(50, new ActionListener() {
 

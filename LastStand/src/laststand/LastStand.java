@@ -58,6 +58,6 @@ public class LastStand{
         
         //BattleTest newtest = new BattleTest();
         //newtest.runAllTests();
-
+        });
     }
 }
